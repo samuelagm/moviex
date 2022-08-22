@@ -1,0 +1,111 @@
+definitions:
+  types.CharacterResponse:
+    properties:
+      birth_year:
+        type: string
+      created:
+        type: string
+      edited:
+        type: string
+      eye_color:
+        type: string
+      films:
+        items:
+          type: string
+        type: array
+      gender:
+        type: string
+      hair_color:
+        type: string
+      height:
+        type: string
+      mass:
+        type: string
+      name:
+        type: string
+      skin_color:
+        type: string
+      url:
+        type: string
+    type: object
+  types.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  types.FilmResponse:
+    properties:
+      characters:
+        items:
+          type: string
+        type: array
+      created:
+        type: string
+      director:
+        type: string
+      edited:
+        type: string
+      episode_id:
+        type: integer
+      opening_crawl:
+        type: string
+      producer:
+        type: string
+      release_date:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+    type: object
+info:
+  contact:
+    email: samuelagm@gmail.com
+    name: Samuel Agbonkpolo
+  description: StarWars Movie Server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Movie API
+  version: 0.0.1
+paths:
+  /movies:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of all star wars movies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.FilmResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: list all movies
+  /people:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of all star wars movies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.CharacterResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: list all movies
+swagger: "2.0"
