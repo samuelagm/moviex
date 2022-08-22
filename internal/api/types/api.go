@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -120,11 +121,14 @@ func (h *ApiHelper) Characters(gctx *gin.Context) {
 		Where(filterOp).
 		Order(sortOp).
 		All(h.Context); err == nil {
-		result := []CharacterResponse{}
+
+		characters := []Character{}
+		totalHeight := 0
+
 		for _, c := range movies {
-			result = append(result, CharacterResponse{
+			characters = append(characters, Character{
 				Name:      c.Name,
-				Height:    commontypes.HtoFeetInces(c.Height),
+				Height:    c.Height,
 				Mass:      c.Mass,
 				HairColor: c.HairColor,
 				SkinColor: c.SkinColor,
@@ -136,8 +140,21 @@ func (h *ApiHelper) Characters(gctx *gin.Context) {
 				Edited:    c.Edited,
 				URL:       c.URL,
 			})
+			if hInt, err := strconv.Atoi(c.Height); err == nil {
+				totalHeight += hInt
+			}
 		}
-		gctx.JSON(http.StatusOK, result)
+
+		gctx.JSON(http.StatusOK, CharacterResponse{
+			Characters: characters,
+			MetaData: struct {
+				Count       int
+				TotalHeight string
+			}{
+				Count:       len(characters),
+				TotalHeight: commontypes.HtoFeetInces(totalHeight),
+			},
+		})
 	} else {
 		log.Println(err)
 		gctx.JSON(http.StatusInternalServerError, ErrorResponse{

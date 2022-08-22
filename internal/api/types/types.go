@@ -43,6 +43,14 @@ type CommentResponse struct {
 }
 
 type CharacterResponse struct {
+	Characters []Character `json:"characters"`
+	MetaData   struct {
+		Count       int
+		TotalHeight string
+	} `json:"metadata"`
+}
+
+type Character struct {
 	Name      string    `json:"name"`
 	Height    string    `json:"height"`
 	Mass      string    `json:"mass"`
