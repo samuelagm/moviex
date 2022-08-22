@@ -24,16 +24,16 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/characters": {
+        "/characters/:episodeId": {
             "get": {
-                "description": "Returns a list of all star wars characters",
+                "description": "Returns a list of all star wars characters in an episode",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "list all characters",
+                "summary": "list all characters in an episode",
                 "responses": {
                     "200": {
                         "description": "OK",

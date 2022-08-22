@@ -95,11 +95,11 @@ info:
   title: Movie API
   version: 0.0.1
 paths:
-  /characters:
+  /characters/:episodeId:
     get:
       consumes:
       - application/json
-      description: Returns a list of all star wars characters
+      description: Returns a list of all star wars characters in an episode
       produces:
       - application/json
       responses:
@@ -113,7 +113,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/types.ErrorResponse'
-      summary: list all characters
+      summary: list all characters in an episode
   /comments/:episodeId:
     get:
       consumes:

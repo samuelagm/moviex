@@ -87,14 +87,14 @@ func (h *ApiHelper) Movies(gctx *gin.Context) {
 // @BasePath /api/v1
 
 // Movies 			godoc
-// @Summary 		list all characters
+// @Summary 		list all characters in an episode
 // @Schemes
-// @Description 	Returns a list of all star wars characters
+// @Description 	Returns a list of all star wars characters in an episode
 // @Accept       	json
 // @Produce 		json
 // @Success 		200 {array} CharacterResponse
 // @Failure      	500  {object}  ErrorResponse
-// @Router 			/characters [get]
+// @Router 			/characters/:episodeId [get]
 func (h *ApiHelper) Characters(gctx *gin.Context) {
 	m := getConnectedMovie(gctx, h)
 	sortOp := ent.Asc(character.FieldName)
