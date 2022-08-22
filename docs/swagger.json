@@ -15,6 +15,35 @@
         "version": "0.0.1"
     },
     "paths": {
+        "/characters": {
+            "get": {
+                "description": "Returns a list of all star wars characters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "list all characters",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.CharacterResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/comments/:episodeId": {
             "get": {
                 "description": "Returns a list of comments from a movie by episode Id",
@@ -31,7 +60,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/types.FilmResponse"
+                                "$ref": "#/definitions/types.CommentResponse"
                             }
                         }
                     },
@@ -111,39 +140,10 @@
                     }
                 }
             }
-        },
-        "/people": {
-            "get": {
-                "description": "Returns a list of all star wars characters",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "list all characters",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/types.CharacterResponse"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
-        "types.CharacterResponse": {
+        "types.Character": {
             "type": "object",
             "properties": {
                 "birth_year": {
@@ -187,6 +187,28 @@
                 }
             }
         },
+        "types.CharacterResponse": {
+            "type": "object",
+            "properties": {
+                "characters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.Character"
+                    }
+                },
+                "metadata": {
+                    "type": "object",
+                    "properties": {
+                        "count": {
+                            "type": "integer"
+                        },
+                        "totalHeight": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "types.CommentResponse": {
             "type": "object",
             "properties": {
@@ -196,10 +218,10 @@
                 "ip": {
                     "type": "string"
                 },
-                "text": {
+                "name": {
                     "type": "string"
                 },
-                "title": {
+                "text": {
                     "type": "string"
                 }
             }

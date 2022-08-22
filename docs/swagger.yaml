@@ -1,5 +1,5 @@
 definitions:
-  types.CharacterResponse:
+  types.Character:
     properties:
       birth_year:
         type: string
@@ -28,15 +28,29 @@ definitions:
       url:
         type: string
     type: object
+  types.CharacterResponse:
+    properties:
+      characters:
+        items:
+          $ref: '#/definitions/types.Character'
+        type: array
+      metadata:
+        properties:
+          count:
+            type: integer
+          totalHeight:
+            type: string
+        type: object
+    type: object
   types.CommentResponse:
     properties:
       created:
         type: string
       ip:
         type: string
-      text:
+      name:
         type: string
-      title:
+      text:
         type: string
     type: object
   types.ErrorResponse:
@@ -81,6 +95,25 @@ info:
   title: Movie API
   version: 0.0.1
 paths:
+  /characters:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of all star wars characters
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.CharacterResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: list all characters
   /comments/:episodeId:
     get:
       consumes:
@@ -93,7 +126,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/types.FilmResponse'
+              $ref: '#/definitions/types.CommentResponse'
             type: array
         "400":
           description: Bad Request
@@ -145,23 +178,4 @@ paths:
           schema:
             $ref: '#/definitions/types.ErrorResponse'
       summary: list all movies
-  /people:
-    get:
-      consumes:
-      - application/json
-      description: Returns a list of all star wars characters
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/types.CharacterResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/types.ErrorResponse'
-      summary: list all characters
 swagger: "2.0"

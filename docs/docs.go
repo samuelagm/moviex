@@ -24,6 +24,35 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/characters": {
+            "get": {
+                "description": "Returns a list of all star wars characters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "list all characters",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.CharacterResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/comments/:episodeId": {
             "get": {
                 "description": "Returns a list of comments from a movie by episode Id",
@@ -40,7 +69,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/types.FilmResponse"
+                                "$ref": "#/definitions/types.CommentResponse"
                             }
                         }
                     },
@@ -120,39 +149,10 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/people": {
-            "get": {
-                "description": "Returns a list of all star wars characters",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "list all characters",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/types.CharacterResponse"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
-        "types.CharacterResponse": {
+        "types.Character": {
             "type": "object",
             "properties": {
                 "birth_year": {
@@ -196,6 +196,28 @@ const docTemplate = `{
                 }
             }
         },
+        "types.CharacterResponse": {
+            "type": "object",
+            "properties": {
+                "characters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.Character"
+                    }
+                },
+                "metadata": {
+                    "type": "object",
+                    "properties": {
+                        "count": {
+                            "type": "integer"
+                        },
+                        "totalHeight": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "types.CommentResponse": {
             "type": "object",
             "properties": {
@@ -205,10 +227,10 @@ const docTemplate = `{
                 "ip": {
                     "type": "string"
                 },
-                "text": {
+                "name": {
                     "type": "string"
                 },
-                "title": {
+                "text": {
                     "type": "string"
                 }
             }
