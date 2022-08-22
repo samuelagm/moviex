@@ -31,8 +31,8 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 		v1.GET("/characters/:episodeId", api.Characters)
 		v1.GET("/comments/:episodeId", api.Comments)
 		v1.POST("/comment/:episodeId", api.NewComment)
+		r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	}
 
-	r.GET("/api/v1/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
