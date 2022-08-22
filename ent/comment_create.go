@@ -45,18 +45,6 @@ func (cc *CommentCreate) SetCreated(t time.Time) *CommentCreate {
 	return cc
 }
 
-// SetEdited sets the "edited" field.
-func (cc *CommentCreate) SetEdited(t time.Time) *CommentCreate {
-	cc.mutation.SetEdited(t)
-	return cc
-}
-
-// SetURL sets the "url" field.
-func (cc *CommentCreate) SetURL(s string) *CommentCreate {
-	cc.mutation.SetURL(s)
-	return cc
-}
-
 // SetFilmID sets the "film" edge to the Movie entity by ID.
 func (cc *CommentCreate) SetFilmID(id int) *CommentCreate {
 	cc.mutation.SetFilmID(id)
@@ -169,12 +157,6 @@ func (cc *CommentCreate) check() error {
 	if _, ok := cc.mutation.Created(); !ok {
 		return &ValidationError{Name: "created", err: errors.New(`ent: missing required field "Comment.created"`)}
 	}
-	if _, ok := cc.mutation.Edited(); !ok {
-		return &ValidationError{Name: "edited", err: errors.New(`ent: missing required field "Comment.edited"`)}
-	}
-	if _, ok := cc.mutation.URL(); !ok {
-		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Comment.url"`)}
-	}
 	return nil
 }
 
@@ -233,22 +215,6 @@ func (cc *CommentCreate) createSpec() (*Comment, *sqlgraph.CreateSpec) {
 			Column: comment.FieldCreated,
 		})
 		_node.Created = value
-	}
-	if value, ok := cc.mutation.Edited(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: comment.FieldEdited,
-		})
-		_node.Edited = value
-	}
-	if value, ok := cc.mutation.URL(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: comment.FieldURL,
-		})
-		_node.URL = value
 	}
 	if nodes := cc.mutation.FilmIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

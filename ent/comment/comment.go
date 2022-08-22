@@ -15,10 +15,6 @@ const (
 	FieldIP = "ip"
 	// FieldCreated holds the string denoting the created field in the database.
 	FieldCreated = "created"
-	// FieldEdited holds the string denoting the edited field in the database.
-	FieldEdited = "edited"
-	// FieldURL holds the string denoting the url field in the database.
-	FieldURL = "url"
 	// EdgeFilm holds the string denoting the film edge name in mutations.
 	EdgeFilm = "film"
 	// Table holds the table name of the comment in the database.
@@ -39,8 +35,6 @@ var Columns = []string{
 	FieldText,
 	FieldIP,
 	FieldCreated,
-	FieldEdited,
-	FieldURL,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "comments"

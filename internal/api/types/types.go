@@ -31,12 +31,12 @@ type FilmResponse struct {
 }
 
 type Comment struct {
-	Name string `json:"title"`
+	Name string `json:"name"`
 	Text string `json:"text"`
 }
 
 type CommentResponse struct {
-	Name    string    `json:"title"`
+	Name    string    `json:"name"`
 	Text    string    `json:"text"`
 	IP      string    `json:"ip"`
 	Created time.Time `json:"created"`

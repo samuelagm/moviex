@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/samuelagm/moviex/ent"
 	"github.com/samuelagm/moviex/ent/character"
+	"github.com/samuelagm/moviex/ent/comment"
 	"github.com/samuelagm/moviex/ent/movie"
 	"github.com/samuelagm/moviex/ent/predicate"
 	commontypes "github.com/samuelagm/moviex/internal/common/types"
@@ -92,9 +93,9 @@ func (h *ApiHelper) Movies(gctx *gin.Context) {
 // @Produce 		json
 // @Success 		200 {array} CharacterResponse
 // @Failure      	500  {object}  ErrorResponse
-// @Router 			/people [get]
+// @Router 			/characters [get]
 func (h *ApiHelper) Characters(gctx *gin.Context) {
-
+	m := getConnectedMovie(gctx, h)
 	sortOp := ent.Asc(character.FieldName)
 	filterOp := predicate.Character(func(s *sql.Selector) {})
 
@@ -115,7 +116,7 @@ func (h *ApiHelper) Characters(gctx *gin.Context) {
 		}
 	}
 
-	if movies, err := h.EntClient.Character.Query().
+	if movies, err := m.QueryPeople().
 		Where(filterOp).
 		Order(sortOp).
 		All(h.Context); err == nil {
@@ -147,18 +148,20 @@ func (h *ApiHelper) Characters(gctx *gin.Context) {
 
 // @BasePath /api/v1
 
-// Movies 			godoc
-// @Summary 		list all movies
+// Comments 		godoc
+// @Summary 		list all comments from a movie
 // @Schemes
-// @Description 	Returns a list of all star wars movies
+// @Description 	Returns a list of comments from a movie by episode Id
 // @Accept       	json
 // @Produce 		json
-// @Success 		200 {array} FilmResponse
-// @Failure      	500  {object}  ErrorResponse
-// @Router 			/movies [get]
+// @Success 		200 {array}   CommentResponse
+// @Failure      	400 {object}  ErrorResponse
+// @Failure      	500 {object}  ErrorResponse
+// @Router 			/comments/:episodeId [get]
 func (h *ApiHelper) Comments(gctx *gin.Context) {
-	if comments, err := h.EntClient.Comment.Query().
-		//Order((ent.Asc(movie.FieldReleaseDate))).
+	m := getConnectedMovie(gctx, h)
+	if comments, err := m.QueryComments().
+		Order(ent.Desc(comment.FieldCreated)).
 		All(h.Context); err == nil {
 		result := []CommentResponse{}
 		for _, m := range comments {
@@ -180,25 +183,29 @@ func (h *ApiHelper) Comments(gctx *gin.Context) {
 
 // @BasePath /api/v1
 
-// Movies 			godoc
+// Comments 		godoc
 // @Summary 		creates a new comment
 // @Schemes
 // @Description 	adds a comment to a movie
 // @Accept       	json
 // @Produce 		json
 // @Success 		200 {array}   CommentResponse
+// @Failure      	400 {object}  ErrorResponse
 // @Failure      	500 {object}  ErrorResponse
-// @Router 			/movies [get]
+// @Router 			/comments/:episodeId [post]
 func (h *ApiHelper) NewComment(gctx *gin.Context) {
 	var comment Comment
-	if gctx.ShouldBindJSON(&comment) == nil {
+	if gctx.ShouldBindJSON(&comment) != nil {
 		return
 	}
+
+	m := getConnectedMovie(gctx, h)
 	if _, err := h.EntClient.Comment.Create().
 		SetName(comment.Name).
 		SetIP(gctx.ClientIP()).
 		SetCreated(time.Now()).
 		SetText(comment.Text).
+		SetFilm(m).
 		Save(h.Context); err != nil {
 		log.Println(err)
 		gctx.JSON(http.StatusInternalServerError, ErrorResponse{

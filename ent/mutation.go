@@ -1039,8 +1039,6 @@ type CommentMutation struct {
 	text          *string
 	ip            *string
 	created       *time.Time
-	edited        *time.Time
-	url           *string
 	clearedFields map[string]struct{}
 	film          *int
 	clearedfilm   bool
@@ -1291,78 +1289,6 @@ func (m *CommentMutation) ResetCreated() {
 	m.created = nil
 }
 
-// SetEdited sets the "edited" field.
-func (m *CommentMutation) SetEdited(t time.Time) {
-	m.edited = &t
-}
-
-// Edited returns the value of the "edited" field in the mutation.
-func (m *CommentMutation) Edited() (r time.Time, exists bool) {
-	v := m.edited
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldEdited returns the old "edited" field's value of the Comment entity.
-// If the Comment object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CommentMutation) OldEdited(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldEdited is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldEdited requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEdited: %w", err)
-	}
-	return oldValue.Edited, nil
-}
-
-// ResetEdited resets all changes to the "edited" field.
-func (m *CommentMutation) ResetEdited() {
-	m.edited = nil
-}
-
-// SetURL sets the "url" field.
-func (m *CommentMutation) SetURL(s string) {
-	m.url = &s
-}
-
-// URL returns the value of the "url" field in the mutation.
-func (m *CommentMutation) URL() (r string, exists bool) {
-	v := m.url
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldURL returns the old "url" field's value of the Comment entity.
-// If the Comment object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CommentMutation) OldURL(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldURL is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldURL requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldURL: %w", err)
-	}
-	return oldValue.URL, nil
-}
-
-// ResetURL resets all changes to the "url" field.
-func (m *CommentMutation) ResetURL() {
-	m.url = nil
-}
-
 // SetFilmID sets the "film" edge to the Movie entity by id.
 func (m *CommentMutation) SetFilmID(id int) {
 	m.film = &id
@@ -1421,7 +1347,7 @@ func (m *CommentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CommentMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 4)
 	if m.name != nil {
 		fields = append(fields, comment.FieldName)
 	}
@@ -1433,12 +1359,6 @@ func (m *CommentMutation) Fields() []string {
 	}
 	if m.created != nil {
 		fields = append(fields, comment.FieldCreated)
-	}
-	if m.edited != nil {
-		fields = append(fields, comment.FieldEdited)
-	}
-	if m.url != nil {
-		fields = append(fields, comment.FieldURL)
 	}
 	return fields
 }
@@ -1456,10 +1376,6 @@ func (m *CommentMutation) Field(name string) (ent.Value, bool) {
 		return m.IP()
 	case comment.FieldCreated:
 		return m.Created()
-	case comment.FieldEdited:
-		return m.Edited()
-	case comment.FieldURL:
-		return m.URL()
 	}
 	return nil, false
 }
@@ -1477,10 +1393,6 @@ func (m *CommentMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldIP(ctx)
 	case comment.FieldCreated:
 		return m.OldCreated(ctx)
-	case comment.FieldEdited:
-		return m.OldEdited(ctx)
-	case comment.FieldURL:
-		return m.OldURL(ctx)
 	}
 	return nil, fmt.Errorf("unknown Comment field %s", name)
 }
@@ -1517,20 +1429,6 @@ func (m *CommentMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCreated(v)
-		return nil
-	case comment.FieldEdited:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetEdited(v)
-		return nil
-	case comment.FieldURL:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetURL(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Comment field %s", name)
@@ -1592,12 +1490,6 @@ func (m *CommentMutation) ResetField(name string) error {
 		return nil
 	case comment.FieldCreated:
 		m.ResetCreated()
-		return nil
-	case comment.FieldEdited:
-		m.ResetEdited()
-		return nil
-	case comment.FieldURL:
-		m.ResetURL()
 		return nil
 	}
 	return fmt.Errorf("unknown Comment field %s", name)

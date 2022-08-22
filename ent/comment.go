@@ -25,10 +25,6 @@ type Comment struct {
 	IP string `json:"ip,omitempty"`
 	// Created holds the value of the "created" field.
 	Created time.Time `json:"created,omitempty"`
-	// Edited holds the value of the "edited" field.
-	Edited time.Time `json:"edited,omitempty"`
-	// URL holds the value of the "url" field.
-	URL string `json:"url,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CommentQuery when eager-loading is set.
 	Edges          CommentEdges `json:"edges"`
@@ -64,9 +60,9 @@ func (*Comment) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case comment.FieldID:
 			values[i] = new(sql.NullInt64)
-		case comment.FieldName, comment.FieldText, comment.FieldIP, comment.FieldURL:
+		case comment.FieldName, comment.FieldText, comment.FieldIP:
 			values[i] = new(sql.NullString)
-		case comment.FieldCreated, comment.FieldEdited:
+		case comment.FieldCreated:
 			values[i] = new(sql.NullTime)
 		case comment.ForeignKeys[0]: // movie_comments
 			values[i] = new(sql.NullInt64)
@@ -114,18 +110,6 @@ func (c *Comment) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field created", values[i])
 			} else if value.Valid {
 				c.Created = value.Time
-			}
-		case comment.FieldEdited:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field edited", values[i])
-			} else if value.Valid {
-				c.Edited = value.Time
-			}
-		case comment.FieldURL:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field url", values[i])
-			} else if value.Valid {
-				c.URL = value.String
 			}
 		case comment.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -178,12 +162,6 @@ func (c *Comment) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created=")
 	builder.WriteString(c.Created.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("edited=")
-	builder.WriteString(c.Edited.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("url=")
-	builder.WriteString(c.URL)
 	builder.WriteByte(')')
 	return builder.String()
 }

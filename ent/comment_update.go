@@ -53,18 +53,6 @@ func (cu *CommentUpdate) SetCreated(t time.Time) *CommentUpdate {
 	return cu
 }
 
-// SetEdited sets the "edited" field.
-func (cu *CommentUpdate) SetEdited(t time.Time) *CommentUpdate {
-	cu.mutation.SetEdited(t)
-	return cu
-}
-
-// SetURL sets the "url" field.
-func (cu *CommentUpdate) SetURL(s string) *CommentUpdate {
-	cu.mutation.SetURL(s)
-	return cu
-}
-
 // SetFilmID sets the "film" edge to the Movie entity by ID.
 func (cu *CommentUpdate) SetFilmID(id int) *CommentUpdate {
 	cu.mutation.SetFilmID(id)
@@ -211,20 +199,6 @@ func (cu *CommentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: comment.FieldCreated,
 		})
 	}
-	if value, ok := cu.mutation.Edited(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: comment.FieldEdited,
-		})
-	}
-	if value, ok := cu.mutation.URL(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: comment.FieldURL,
-		})
-	}
 	if cu.mutation.FilmCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -300,18 +274,6 @@ func (cuo *CommentUpdateOne) SetIP(s string) *CommentUpdateOne {
 // SetCreated sets the "created" field.
 func (cuo *CommentUpdateOne) SetCreated(t time.Time) *CommentUpdateOne {
 	cuo.mutation.SetCreated(t)
-	return cuo
-}
-
-// SetEdited sets the "edited" field.
-func (cuo *CommentUpdateOne) SetEdited(t time.Time) *CommentUpdateOne {
-	cuo.mutation.SetEdited(t)
-	return cuo
-}
-
-// SetURL sets the "url" field.
-func (cuo *CommentUpdateOne) SetURL(s string) *CommentUpdateOne {
-	cuo.mutation.SetURL(s)
 	return cuo
 }
 
@@ -489,20 +451,6 @@ func (cuo *CommentUpdateOne) sqlSave(ctx context.Context) (_node *Comment, err e
 			Type:   field.TypeTime,
 			Value:  value,
 			Column: comment.FieldCreated,
-		})
-	}
-	if value, ok := cuo.mutation.Edited(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: comment.FieldEdited,
-		})
-	}
-	if value, ok := cuo.mutation.URL(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: comment.FieldURL,
 		})
 	}
 	if cuo.mutation.FilmCleared() {

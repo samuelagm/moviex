@@ -37,8 +37,6 @@ var (
 		{Name: "text", Type: field.TypeString, Size: 500},
 		{Name: "ip", Type: field.TypeString},
 		{Name: "created", Type: field.TypeTime},
-		{Name: "edited", Type: field.TypeTime},
-		{Name: "url", Type: field.TypeString},
 		{Name: "movie_comments", Type: field.TypeInt, Nullable: true},
 	}
 	// CommentsTable holds the schema information for the "comments" table.
@@ -49,7 +47,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "comments_movies_comments",
-				Columns:    []*schema.Column{CommentsColumns[7]},
+				Columns:    []*schema.Column{CommentsColumns[5]},
 				RefColumns: []*schema.Column{MoviesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

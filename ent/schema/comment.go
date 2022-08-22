@@ -17,8 +17,7 @@ func (Comment) Fields() []ent.Field {
 		field.String("name"),
 		field.String("text").MaxLen(500),
 		field.String("ip"),
-		field.Time("created"),
-		field.String("url")}
+		field.Time("created")}
 }
 
 // Edges of the Comment.

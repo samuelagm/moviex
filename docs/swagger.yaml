@@ -28,6 +28,17 @@ definitions:
       url:
         type: string
     type: object
+  types.CommentResponse:
+    properties:
+      created:
+        type: string
+      ip:
+        type: string
+      text:
+        type: string
+      title:
+        type: string
+    type: object
   types.ErrorResponse:
     properties:
       message:
@@ -70,6 +81,51 @@ info:
   title: Movie API
   version: 0.0.1
 paths:
+  /comments/:episodeId:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of comments from a movie by episode Id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.FilmResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: list all comments from a movie
+    post:
+      consumes:
+      - application/json
+      description: adds a comment to a movie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.CommentResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: creates a new comment
   /movies:
     get:
       consumes:
@@ -93,7 +149,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns a list of all star wars movies
+      description: Returns a list of all star wars characters
       produces:
       - application/json
       responses:
@@ -107,5 +163,5 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/types.ErrorResponse'
-      summary: list all movies
+      summary: list all characters
 swagger: "2.0"
