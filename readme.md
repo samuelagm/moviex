@@ -4,7 +4,7 @@ This project does the following:
 1. Serves endpoint for the following routes:
    - `GET /api/v1/movies` list all movies.
    - `GET /api/v1/characters/:episodeId` list all characters in a movie with episode_id.
-   - `GET /api/v1/comment/:episodeId` list all characters in a movie with episode_id.
+   - `GET /api/v1/comments/:episodeId` list all characters in a movie with episode_id.
    - `POST /api/v1/comment/:episodeId` add a comment to a movie with episode_id.
 
 2. Downloads movie data into an in memory sqlite3 database

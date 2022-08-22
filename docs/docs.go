@@ -24,7 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/characters/:episodeId": {
+        "/characters/{episodeId}": {
             "get": {
                 "description": "Returns a list of all star wars characters in an episode",
                 "consumes": [
@@ -34,6 +34,31 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "summary": "list all characters in an episode",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Episode ID",
+                        "name": "episodeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "sort by gender, height, name and directions asc, desc. E.g ?sort=gender asc, ?sort=name desc",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "filter by gender, (male | female), e.g ?filter=male",
+                        "name": "filter",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -53,16 +78,34 @@ const docTemplate = `{
                 }
             }
         },
-        "/comments/:episodeId": {
-            "get": {
-                "description": "Returns a list of comments from a movie by episode Id",
+        "/comment/{episodeId}": {
+            "post": {
+                "description": "adds a comment to a movie",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "list all comments from a movie",
+                "summary": "creates a new comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Episode ID",
+                        "name": "episodeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Add account",
+                        "name": "comment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.Comment"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -86,16 +129,27 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "adds a comment to a movie",
+            }
+        },
+        "/comments/{episodeId}": {
+            "get": {
+                "description": "Returns a list of comments from a movie by episode Id",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "creates a new comment",
+                "summary": "list all comments from a movie",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Episode ID",
+                        "name": "episodeId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -215,6 +269,17 @@ const docTemplate = `{
                             "type": "string"
                         }
                     }
+                }
+            }
+        },
+        "types.Comment": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
                 }
             }
         },

@@ -42,6 +42,13 @@ definitions:
             type: string
         type: object
     type: object
+  types.Comment:
+    properties:
+      name:
+        type: string
+      text:
+        type: string
+    type: object
   types.CommentResponse:
     properties:
       created:
@@ -95,11 +102,29 @@ info:
   title: Movie API
   version: 0.0.1
 paths:
-  /characters/:episodeId:
+  /characters/{episodeId}:
     get:
       consumes:
       - application/json
       description: Returns a list of all star wars characters in an episode
+      parameters:
+      - description: Episode ID
+        in: path
+        name: episodeId
+        required: true
+        type: integer
+      - collectionFormat: multi
+        description: sort by gender, height, name and directions asc, desc. E.g ?sort=gender
+          asc, ?sort=name desc
+        in: query
+        items:
+          type: string
+        name: sort
+        type: array
+      - description: filter by gender, (male | female), e.g ?filter=male
+        in: query
+        name: filter
+        type: string
       produces:
       - application/json
       responses:
@@ -114,33 +139,23 @@ paths:
           schema:
             $ref: '#/definitions/types.ErrorResponse'
       summary: list all characters in an episode
-  /comments/:episodeId:
-    get:
-      consumes:
-      - application/json
-      description: Returns a list of comments from a movie by episode Id
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/types.CommentResponse'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/types.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/types.ErrorResponse'
-      summary: list all comments from a movie
+  /comment/{episodeId}:
     post:
       consumes:
       - application/json
       description: adds a comment to a movie
+      parameters:
+      - description: Episode ID
+        in: path
+        name: episodeId
+        required: true
+        type: integer
+      - description: Add account
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/types.Comment'
       produces:
       - application/json
       responses:
@@ -159,6 +174,35 @@ paths:
           schema:
             $ref: '#/definitions/types.ErrorResponse'
       summary: creates a new comment
+  /comments/{episodeId}:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of comments from a movie by episode Id
+      parameters:
+      - description: Episode ID
+        in: path
+        name: episodeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.CommentResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: list all comments from a movie
   /movies:
     get:
       consumes:

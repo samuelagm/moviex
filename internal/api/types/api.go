@@ -53,8 +53,8 @@ func NewApiHelper(ctx context.Context, dbClient *ent.Client) *ApiHelper {
 // @Description 	Returns a list of all star wars movies
 // @Accept       	json
 // @Produce 		json
-// @Success 		200 {array} FilmResponse
-// @Failure      	500  {object}  ErrorResponse
+// @Success 		200 {array} 	FilmResponse
+// @Failure      	500  {object}  	ErrorResponse
 // @Router 			/movies [get]
 func (h *ApiHelper) Movies(gctx *gin.Context) {
 	if movies, err := h.EntClient.Movie.Query().
@@ -90,11 +90,14 @@ func (h *ApiHelper) Movies(gctx *gin.Context) {
 // @Summary 		list all characters in an episode
 // @Schemes
 // @Description 	Returns a list of all star wars characters in an episode
+// @Param        	episodeId path int  true  "Episode ID"
+// @Param        	sort    query   []string   false  "sort by gender, height, name and directions asc, desc. E.g ?sort=gender asc, ?sort=name desc"  collectionFormat(multi)
+// @Param        	filter  query   string     false  "filter by gender, (male | female), e.g ?filter=male"
 // @Accept       	json
 // @Produce 		json
-// @Success 		200 {array} CharacterResponse
-// @Failure      	500  {object}  ErrorResponse
-// @Router 			/characters/:episodeId [get]
+// @Success 		200  {array} 	CharacterResponse
+// @Failure      	500  {object}  	ErrorResponse
+// @Router 			/characters/{episodeId} [get]
 func (h *ApiHelper) Characters(gctx *gin.Context) {
 	m := getConnectedMovie(gctx, h)
 	sortOp := ent.Asc(character.FieldName)
@@ -169,12 +172,13 @@ func (h *ApiHelper) Characters(gctx *gin.Context) {
 // @Summary 		list all comments from a movie
 // @Schemes
 // @Description 	Returns a list of comments from a movie by episode Id
+// @Param        	episodeId path int  true  "Episode ID"
 // @Accept       	json
 // @Produce 		json
 // @Success 		200 {array}   CommentResponse
 // @Failure      	400 {object}  ErrorResponse
 // @Failure      	500 {object}  ErrorResponse
-// @Router 			/comments/:episodeId [get]
+// @Router 			/comments/{episodeId} [get]
 func (h *ApiHelper) Comments(gctx *gin.Context) {
 	m := getConnectedMovie(gctx, h)
 	if comments, err := m.QueryComments().
@@ -204,12 +208,14 @@ func (h *ApiHelper) Comments(gctx *gin.Context) {
 // @Summary 		creates a new comment
 // @Schemes
 // @Description 	adds a comment to a movie
+// @Param        	episodeId path int  true  "Episode ID"
+// @Param        	comment  body Comment  true  "Add account"
 // @Accept       	json
 // @Produce 		json
 // @Success 		200 {array}   CommentResponse
 // @Failure      	400 {object}  ErrorResponse
 // @Failure      	500 {object}  ErrorResponse
-// @Router 			/comments/:episodeId [post]
+// @Router 			/comment/{episodeId} [post]
 func (h *ApiHelper) NewComment(gctx *gin.Context) {
 	var comment Comment
 	if gctx.ShouldBindJSON(&comment) != nil {
