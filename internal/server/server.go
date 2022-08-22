@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samuelagm/moviex/docs"
@@ -20,6 +21,10 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 	api := apitypes.NewApiHelper(ctx, dbClient)
 	r := gin.Default()
 
+	r.GET("/", func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "Welcome, see: /api/v1/docs/index.html")
+	})
+
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/movies", api.Movies)
@@ -28,6 +33,6 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 		v1.POST("/comment/:episodeId", api.NewComment)
 	}
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	r.GET("/api/v1/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

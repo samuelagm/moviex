@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	"context"
 	"log"
 	"net/http"
@@ -29,9 +30,12 @@ func initVars() {
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
+	if err := dbClient.Schema.Create(context.Background()); err != nil {
+		log.Fatalf("failed creating schema resources: %v", err)
+	}
 
 	loader.Load(context.Background(), dbClient)
-	//defer client.Close()
+
 	api := NewApiHelper(context.Background(), dbClient)
 	router = gin.Default()
 
@@ -49,9 +53,33 @@ func TestApiHelper_Movies(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/api/v1/movies", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-
-	//responseData, _ := ioutil.ReadAll(w.Body)
 	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestApiHelper_Characters(t *testing.T) {
+	req, _ := http.NewRequest("GET", "/api/v1/characters/4", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestApiHelper_Comments(t *testing.T) {
+	req, _ := http.NewRequest("GET", "/api/v1/comments/4", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNotFound, w.Code)
+}
+
+func TestApiHelper_NewComments(t *testing.T) {
+	var jsonData = []byte(`{
+		"name": "job",
+		"text": "moviex"
+	}`)
+	req, _ := http.NewRequest("POST", "/api/v1/comments/4",
+		bytes.NewBuffer(jsonData))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
 // func TestApiHelper_Characters(t *testing.T) {
