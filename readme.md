@@ -12,7 +12,7 @@ This project does the following:
 ### App Url
 [https://morning-chamber-96103.herokuapp.com](https://morning-chamber-96103.herokuapp.com/)
 ### API Docs
-    GET /api/v1/docs/index.html
+   [https://morning-chamber-96103.herokuapp.com/api/v1/docs/index.html](https://morning-chamber-96103.herokuapp.com/api/v1/docs/index.html)
 ### Prerequisites
 
 1. Install go dependencies  
