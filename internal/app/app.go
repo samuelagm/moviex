@@ -15,7 +15,6 @@ import (
 )
 
 func Run() {
-
 	ch := make(chan os.Signal, 1)
 	ctx, cancelCTX := context.WithCancel(context.Background())
 
@@ -25,6 +24,7 @@ func Run() {
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
+
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
