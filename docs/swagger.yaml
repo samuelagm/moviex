@@ -100,7 +100,7 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
   title: Movie API
-  version: 0.0.1
+  version: 0.0.2
 paths:
   /characters/{episodeId}:
     get:

@@ -5,7 +5,7 @@ import (
 )
 
 // @title Movie API
-// @version 0.0.1
+// @version 0.0.2
 // @description StarWars Movie Server.
 // @termsOfService http://swagger.io/terms/
 
