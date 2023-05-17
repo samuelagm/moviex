@@ -128,6 +128,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/types.ErrorResponse"
                         }
                     }
+                },
+                "x-resilis-config": {
+                    "invalidateParams": [
+                        {
+                            "current": "",
+                            "target": "/comments/{episodeId}"
+                        }
+                    ]
                 }
             }
         },
@@ -172,6 +180,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/types.ErrorResponse"
                         }
                     }
+                },
+                "x-resilis-config": {
+                    "enable": true,
+                    "ttl": 300
                 }
             }
         },
