@@ -178,7 +178,7 @@ paths:
         invalidateParams:
         - current: ""
           target: /comments/{episodeId}
-        type: protected
+        type: public
   /comments/{episodeId}:
     get:
       consumes:
@@ -211,7 +211,7 @@ paths:
       x-resilis-config:
         enable: true
         ttl: 300
-        type: protected
+        type: public
   /movies:
     get:
       consumes:

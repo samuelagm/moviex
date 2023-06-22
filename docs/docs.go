@@ -136,7 +136,7 @@ const docTemplate = `{
                             "target": "/comments/{episodeId}"
                         }
                     ],
-                    "type": "protected"
+                    "type": "public"
                 }
             }
         },
@@ -185,7 +185,7 @@ const docTemplate = `{
                 "x-resilis-config": {
                     "enable": true,
                     "ttl": 300,
-                    "type": "protected"
+                    "type": "public"
                 }
             }
         },

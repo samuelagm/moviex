@@ -127,7 +127,7 @@
                             "target": "/comments/{episodeId}"
                         }
                     ],
-                    "type": "protected"
+                    "type": "public"
                 }
             }
         },
@@ -176,7 +176,7 @@
                 "x-resilis-config": {
                     "enable": true,
                     "ttl": 300,
-                    "type": "protected"
+                    "type": "public"
                 }
             }
         },
