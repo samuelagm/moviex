@@ -175,9 +175,8 @@ paths:
             $ref: '#/definitions/types.ErrorResponse'
       summary: creates a new comment
       x-resilis-config:
-        invalidateParams:
-        - current: ""
-          target: /comments/{episodeId}
+        purge:
+        - target: /comments/{episodeId}
         type: public
   /comments/{episodeId}:
     get:

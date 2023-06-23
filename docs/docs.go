@@ -130,9 +130,8 @@ const docTemplate = `{
                     }
                 },
                 "x-resilis-config": {
-                    "invalidateParams": [
+                    "purge": [
                         {
-                            "current": "",
                             "target": "/comments/{episodeId}"
                         }
                     ],

@@ -217,7 +217,7 @@ func (h *ApiHelper) Comments(gctx *gin.Context) {
 // @Failure      	400 {object}  ErrorResponse
 // @Failure      	500 {object}  ErrorResponse
 // @Router 			/comment/{episodeId} [post]
-// @x-resilis-config {"invalidateParams": [{"current": "", "target": "/comments/{episodeId}"}], "type":"public"}
+// @x-resilis-config {"purge": [{"target": "/comments/{episodeId}"}], "type":"public"}
 func (h *ApiHelper) NewComment(gctx *gin.Context) {
 	var comment Comment
 	if gctx.ShouldBindJSON(&comment) != nil {
