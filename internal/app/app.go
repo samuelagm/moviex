@@ -17,6 +17,7 @@ import (
 func Run() {
 	ch := make(chan os.Signal, 1)
 	ctx, cancelCTX := context.WithCancel(context.Background())
+	defer cancelCTX()
 
 	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
 
@@ -24,6 +25,7 @@ func Run() {
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
+	defer client.Close()
 
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
@@ -35,7 +37,5 @@ func Run() {
 	signal := <-ch
 
 	fmt.Printf("\nGot signal: %s, exiting...\n", signal)
-	client.Close()
-	cancelCTX()
 	os.Exit(0)
 }
