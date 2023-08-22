@@ -90,6 +90,7 @@ definitions:
       url:
         type: string
     type: object
+host: morning-chamber-96103.herokuapp.com
 info:
   contact:
     email: samuelagm@gmail.com

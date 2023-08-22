@@ -363,7 +363,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "0.0.2",
-	Host:             "",
+	Host:             "morning-chamber-96103.herokuapp.com",
 	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Movie API",

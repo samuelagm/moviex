@@ -14,6 +14,7 @@
         },
         "version": "0.0.2"
     },
+    "host": "morning-chamber-96103.herokuapp.com",
     "paths": {
         "/characters/{episodeId}": {
             "get": {
