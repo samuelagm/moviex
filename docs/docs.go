@@ -131,9 +131,7 @@ const docTemplate = `{
                 },
                 "x-resilis-config": {
                     "purge": [
-                        {
-                            "target": "/comments/{episodeId}"
-                        }
+                        "/comments/{episodeId}"
                     ],
                     "type": "public"
                 }
