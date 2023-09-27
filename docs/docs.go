@@ -367,8 +367,6 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "StarWars Movie Server.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
 }
 
 func init() {
