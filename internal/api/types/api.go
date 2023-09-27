@@ -179,7 +179,7 @@ func (h *ApiHelper) Characters(gctx *gin.Context) {
 // @Failure      	400 {object}  ErrorResponse
 // @Failure      	500 {object}  ErrorResponse
 // @Router 			/comments/{episodeId} [get]
-// @x-resilis-config {"enable": true, "ttl":300, "type":"public"}
+// @x-resilis-cfg {"type":"public"}
 func (h *ApiHelper) Comments(gctx *gin.Context) {
 	m := getConnectedMovie(gctx, h)
 	if comments, err := m.QueryComments().
@@ -217,7 +217,7 @@ func (h *ApiHelper) Comments(gctx *gin.Context) {
 // @Failure      	400 {object}  ErrorResponse
 // @Failure      	500 {object}  ErrorResponse
 // @Router 			/comment/{episodeId} [post]
-// @x-resilis-config {"purge": ["/comments/{episodeId}"], "type":"public"}
+// @x-resilis-cfg {"purge": ["/comments/{episodeId}"], "type":"public"}
 func (h *ApiHelper) NewComment(gctx *gin.Context) {
 	var comment Comment
 	if gctx.ShouldBindJSON(&comment) != nil {

@@ -1,5 +1,5 @@
 definitions:
-  types.Character:
+  github_com_samuelagm_moviex_internal_api_types.Character:
     properties:
       birth_year:
         type: string
@@ -32,7 +32,7 @@ definitions:
     properties:
       characters:
         items:
-          $ref: '#/definitions/types.Character'
+          $ref: '#/definitions/github_com_samuelagm_moviex_internal_api_types.Character'
         type: array
       metadata:
         properties:
@@ -90,7 +90,7 @@ definitions:
       url:
         type: string
     type: object
-host: morning-chamber-96103.herokuapp.com
+host: moviex-us-east.onrender.com
 info:
   contact:
     email: samuelagm@gmail.com
@@ -175,7 +175,7 @@ paths:
           schema:
             $ref: '#/definitions/types.ErrorResponse'
       summary: creates a new comment
-      x-resilis-config:
+      x-resilis-cfg:
         purge:
         - /comments/{episodeId}
         type: public
@@ -208,9 +208,7 @@ paths:
           schema:
             $ref: '#/definitions/types.ErrorResponse'
       summary: list all comments from a movie
-      x-resilis-config:
-        enable: true
-        ttl: 300
+      x-resilis-cfg:
         type: public
   /movies:
     get:

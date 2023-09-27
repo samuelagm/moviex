@@ -14,7 +14,7 @@
         },
         "version": "0.0.2"
     },
-    "host": "morning-chamber-96103.herokuapp.com",
+    "host": "moviex-us-east.onrender.com",
     "paths": {
         "/characters/{episodeId}": {
             "get": {
@@ -121,7 +121,7 @@
                         }
                     }
                 },
-                "x-resilis-config": {
+                "x-resilis-cfg": {
                     "purge": [
                         "/comments/{episodeId}"
                     ],
@@ -171,9 +171,7 @@
                         }
                     }
                 },
-                "x-resilis-config": {
-                    "enable": true,
-                    "ttl": 300,
+                "x-resilis-cfg": {
                     "type": "public"
                 }
             }
@@ -209,7 +207,7 @@
         }
     },
     "definitions": {
-        "types.Character": {
+        "github_com_samuelagm_moviex_internal_api_types.Character": {
             "type": "object",
             "properties": {
                 "birth_year": {
@@ -259,7 +257,7 @@
                 "characters": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/types.Character"
+                        "$ref": "#/definitions/github_com_samuelagm_moviex_internal_api_types.Character"
                     }
                 },
                 "metadata": {

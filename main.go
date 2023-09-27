@@ -8,7 +8,7 @@ import (
 // @version 0.0.2
 // @description StarWars Movie Server.
 // @termsOfService http://swagger.io/terms/
-// @host morning-chamber-96103.herokuapp.com
+// @host moviex-us-east.onrender.com
 // @contact.name Samuel Agbonkpolo
 // @contact.email samuelagm@gmail.com
 
