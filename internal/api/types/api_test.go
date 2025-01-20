@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"github.com/samuelagm/moviex/ent"
 	"github.com/samuelagm/moviex/internal/loader"
 	"gotest.tools/assert"

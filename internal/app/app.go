@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"github.com/samuelagm/moviex/ent"
 	"github.com/samuelagm/moviex/internal/loader"
 	"github.com/samuelagm/moviex/internal/server"

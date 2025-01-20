@@ -12,13 +12,11 @@ RUN go mod download
 # Copy the source code
 COPY . .
 
-# Build with security flags
+# Build with CGO disabled (static binary)
 RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /go/bin/app
 
-# Use scratch as final image
 FROM scratch
 
-# Copy only the binary
 COPY --from=builder /go/bin/app /app
 
 # Create non-root user
