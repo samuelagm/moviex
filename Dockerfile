@@ -1,35 +1,30 @@
-# Start with the official Golang Alpine image
 FROM golang:alpine AS builder
 
-# Install necessary packages
-RUN apk update && apk add --no-cache git gcc libc-dev
+# Minimal build dependencies
+RUN apk update && apk add --no-cache git
 
-# Set the working directory for the build
 WORKDIR /app
 
-# Copy go mod and sum files
+# Copy only the dependency files first
 COPY go.mod go.sum ./
-
-# Download necessary Go modules
 RUN go mod download
 
 # Copy the source code
 COPY . .
 
-# Build the application with CGO enabled
-RUN CGO_ENABLED=1 GOOS=linux go build -o /go/bin/app
+# Build with security flags
+RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /go/bin/app
 
-# Start a new minimal image
-FROM alpine:latest
+# Use scratch as final image
+FROM scratch
 
-# Install necessary runtime dependencies
-RUN apk add --no-cache libc6-compat
-
-# Copy the binary from the builder stage
+# Copy only the binary
 COPY --from=builder /go/bin/app /app
 
-# Expose port 8080 (adjust if necessary for your application)
+# Create non-root user
+COPY --from=builder /etc/passwd /etc/passwd
+USER nobody
+
 EXPOSE 8080
 
-# Command to run the application
 CMD ["/app"]
