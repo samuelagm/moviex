@@ -14,7 +14,7 @@
         },
         "version": "0.0.2"
     },
-    "host": "moviex-us-east.onrender.com",
+    "host": "moviex.fly.dev",
     "paths": {
         "/characters/{episodeId}": {
             "get": {
@@ -122,6 +122,7 @@
                     }
                 },
                 "x-resilis-cfg": {
+                    "async": false,
                     "purge": [
                         "/comments/{episodeId}"
                     ],
@@ -172,6 +173,53 @@
                     }
                 },
                 "x-resilis-cfg": {
+                    "type": "public"
+                }
+            }
+        },
+        "/movie": {
+            "post": {
+                "description": "Adds a new movie to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Creates a new movie",
+                "parameters": [
+                    {
+                        "description": "Add movie",
+                        "name": "movie",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_samuelagm_moviex_internal_api_types.Film"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_samuelagm_moviex_internal_api_types.Film"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                },
+                "x-resilis-cfg": {
+                    "async": true,
                     "type": "public"
                 }
             }
@@ -244,6 +292,38 @@
                     "type": "string"
                 },
                 "skin_color": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_samuelagm_moviex_internal_api_types.Film": {
+            "type": "object",
+            "properties": {
+                "characters": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "director": {
+                    "type": "string"
+                },
+                "episode_id": {
+                    "type": "integer"
+                },
+                "opening_crawl": {
+                    "type": "string"
+                },
+                "producer": {
+                    "type": "string"
+                },
+                "release_date": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 },
                 "url": {

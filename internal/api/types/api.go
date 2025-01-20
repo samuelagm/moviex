@@ -58,8 +58,7 @@ func NewApiHelper(ctx context.Context, dbClient *ent.Client) *ApiHelper {
 // @Router 			/movies [get]
 func (h *ApiHelper) Movies(gctx *gin.Context) {
 	if movies, err := h.EntClient.Movie.Query().
-		Order((ent.Asc(movie.FieldReleaseDate))).
-		All(h.Context); err == nil {
+		Order((ent.Desc(movie.FieldCreated))).Limit(5).All(h.Context); err == nil {
 		result := []FilmResponse{}
 		for _, m := range movies {
 			result = append(result, FilmResponse{
@@ -123,6 +122,7 @@ func (h *ApiHelper) Characters(gctx *gin.Context) {
 	if movies, err := m.QueryPeople().
 		Where(filterOp).
 		Order(sortOp).
+		Limit(5).
 		All(h.Context); err == nil {
 
 		characters := []Character{}
@@ -184,6 +184,7 @@ func (h *ApiHelper) Comments(gctx *gin.Context) {
 	m := getConnectedMovie(gctx, h)
 	if comments, err := m.QueryComments().
 		Order(ent.Desc(comment.FieldCreated)).
+		Limit(5).
 		All(h.Context); err == nil {
 		result := []CommentResponse{}
 		for _, m := range comments {
@@ -216,8 +217,8 @@ func (h *ApiHelper) Comments(gctx *gin.Context) {
 // @Success 		200 {array}   CommentResponse
 // @Failure      	400 {object}  ErrorResponse
 // @Failure      	500 {object}  ErrorResponse
-// @Router 			/comment/{episodeId} [post]
-// @x-resilis-cfg {"purge": ["/comments/{episodeId}"], "type":"public"}
+// @Router 			/comments/{episodeId} [post]
+// @x-resilis-cfg {"purge": ["/comments/{episodeId}"], "type":"public", "async":false}
 func (h *ApiHelper) NewComment(gctx *gin.Context) {
 	var comment Comment
 	if gctx.ShouldBindJSON(&comment) != nil {
@@ -239,4 +240,57 @@ func (h *ApiHelper) NewComment(gctx *gin.Context) {
 		return
 	}
 	gctx.JSON(http.StatusCreated, comment)
+}
+
+// @BasePath /api/v1
+
+// @Summary      Creates a new movie
+// @Schemes
+// @Description  Adds a new movie to the database
+// @Param        movie  body Film  true  "Add movie"
+// @Accept       json
+// @Produce      json
+// @Success      201 {object} Film
+// @Failure      400 {object} ErrorResponse
+// @Failure      500 {object} ErrorResponse
+// @Router       /movies [post]
+// @x-resilis-cfg {"type":"public", "async":true}
+func (h *ApiHelper) NewMovie(gctx *gin.Context) {
+	var movie Film
+	if err := gctx.ShouldBindJSON(&movie); err != nil {
+		gctx.JSON(http.StatusBadRequest, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	releaseDate, err := time.Parse("2006-01-02", movie.ReleaseDate)
+	if err != nil {
+		gctx.JSON(http.StatusBadRequest, ErrorResponse{
+			Message: "Invalid date format, ex of what we want: 2006-01-02",
+		})
+		return
+	}
+
+	if _, err := h.EntClient.Movie.
+		Create().
+		SetTitle(movie.Title).
+		SetDirector(movie.Director).
+		SetProducer(movie.Producer).
+		SetEpisodeID(movie.EpisodeID).
+		SetOpeningCrawl(movie.OpeningCrawl).
+		SetCharacters(movie.Characters).
+		SetURL(movie.URL).
+		SetReleaseDate(releaseDate).
+		SetCreated(time.Now()).
+		SetEdited(time.Now()).
+		Save(h.Context); err != nil {
+		log.Println(err)
+		gctx.JSON(http.StatusInternalServerError, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	gctx.JSON(http.StatusCreated, movie)
 }

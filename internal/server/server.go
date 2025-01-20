@@ -34,7 +34,8 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 		v1.GET("/movies", api.Movies)
 		v1.GET("/characters/:episodeId", api.Characters)
 		v1.GET("/comments/:episodeId", api.Comments)
-		v1.POST("/comment/:episodeId", api.NewComment)
+		v1.POST("/comments/:episodeId", api.NewComment)
+		v1.POST("/movies", api.NewMovie)
 		v1.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	}
 

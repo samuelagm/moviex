@@ -28,6 +28,27 @@ definitions:
       url:
         type: string
     type: object
+  github_com_samuelagm_moviex_internal_api_types.Film:
+    properties:
+      characters:
+        items:
+          type: string
+        type: array
+      director:
+        type: string
+      episode_id:
+        type: integer
+      opening_crawl:
+        type: string
+      producer:
+        type: string
+      release_date:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+    type: object
   types.CharacterResponse:
     properties:
       characters:
@@ -90,7 +111,7 @@ definitions:
       url:
         type: string
     type: object
-host: moviex-us-east.onrender.com
+host: moviex.fly.dev
 info:
   contact:
     email: samuelagm@gmail.com
@@ -176,6 +197,7 @@ paths:
             $ref: '#/definitions/types.ErrorResponse'
       summary: creates a new comment
       x-resilis-cfg:
+        async: false
         purge:
         - /comments/{episodeId}
         type: public
@@ -209,6 +231,37 @@ paths:
             $ref: '#/definitions/types.ErrorResponse'
       summary: list all comments from a movie
       x-resilis-cfg:
+        type: public
+  /movie:
+    post:
+      consumes:
+      - application/json
+      description: Adds a new movie to the database
+      parameters:
+      - description: Add movie
+        in: body
+        name: movie
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_samuelagm_moviex_internal_api_types.Film'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_samuelagm_moviex_internal_api_types.Film'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Creates a new movie
+      x-resilis-cfg:
+        async: true
         type: public
   /movies:
     get:

@@ -30,6 +30,17 @@ type FilmResponse struct {
 	URL          string            `json:"url"`
 }
 
+type Film struct {
+	Title        string   `json:"title"`
+	EpisodeID    int      `json:"episode_id"`
+	OpeningCrawl string   `json:"opening_crawl"`
+	Director     string   `json:"director"`
+	Producer     string   `json:"producer"`
+	ReleaseDate  string   `json:"release_date"`
+	Characters   []string `json:"characters"`
+	URL          string   `json:"url"`
+}
+
 type Comment struct {
 	Name string `json:"name"`
 	Text string `json:"text"`
