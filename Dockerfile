@@ -2,7 +2,7 @@
 FROM golang:alpine AS builder
 
 # Install necessary packages
-RUN apk update && apk add --no-cache git
+RUN apk update && apk add --no-cache git gcc libc-dev
 
 # Set the working directory for the build
 WORKDIR /app
@@ -16,11 +16,14 @@ RUN go mod download
 # Copy the source code
 COPY . .
 
-# Build the application
-RUN go build -o /go/bin/app
+# Build the application with CGO enabled
+RUN CGO_ENABLED=1 GOOS=linux go build -o /go/bin/app
 
 # Start a new minimal image
 FROM alpine:latest
+
+# Install necessary runtime dependencies
+RUN apk add --no-cache libc6-compat
 
 # Copy the binary from the builder stage
 COPY --from=builder /go/bin/app /app
