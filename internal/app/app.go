@@ -2,16 +2,18 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
-	_ "modernc.org/sqlite"
 	"github.com/samuelagm/moviex/ent"
 	"github.com/samuelagm/moviex/internal/loader"
 	"github.com/samuelagm/moviex/internal/server"
+	"modernc.org/sqlite"
+	_ "modernc.org/sqlite"
 )
 
 func Run() {
@@ -20,6 +22,8 @@ func Run() {
 	defer cancelCTX()
 
 	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
+
+	sql.Register("sqlite3", &sqlite.Driver{})
 
 	client, err := ent.Open("sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 	if err != nil {
