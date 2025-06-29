@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/samuelagm/moviex/internal/app"
+	_ "github.com/samuelagm/moviex/internal/database" // Initialize SQLite driver
 )
 
 // @title Movie API
