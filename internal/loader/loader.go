@@ -2,6 +2,7 @@ package loader
 
 import (
 	"context"
+	"crypto/tls"
 	"log"
 	"time"
 
@@ -18,6 +19,8 @@ var httpC *resty.Client
 
 func init() {
 	httpC = resty.New()
+	// Skip TLS verification for development
+	httpC.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 	httpC.SetBaseURL("https://swapi.info/api")
 }
 
