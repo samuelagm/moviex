@@ -26,7 +26,7 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 	})
 
 	r.GET("/health", func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, "Alive and Well 1")
+		ctx.String(http.StatusOK, "Alive and Well 2")
 	})
 
 	v1 := r.Group("/api/v1")
