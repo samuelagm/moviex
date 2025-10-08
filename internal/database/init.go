@@ -18,7 +18,7 @@ func (d *SQLiteDriverWithForeignKeys) Open(name string) (driver.Conn, error) {
 		return nil, err
 	}
 
-	// Enable foreign keys on connection
+	// Enable foreign keys on connection 1
 	if execer, ok := conn.(driver.Execer); ok {
 		_, err = execer.Exec("PRAGMA foreign_keys = ON", nil)
 		if err != nil {
