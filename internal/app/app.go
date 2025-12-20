@@ -27,7 +27,7 @@ func Run() {
 	defer client.Close()
 
 	if err := client.Schema.Create(context.Background()); err != nil {
-		log.Fatalf("failed creating schema resources :): %v", err)
+		log.Fatalf("failed creating schema resources :)nn: %v", err)
 	}
 
 	loader.Load(ctx, client)
