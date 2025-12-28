@@ -2,7 +2,10 @@ package server
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samuelagm/moviex/docs"
@@ -21,12 +24,17 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 	api := apitypes.NewApiHelper(ctx, dbClient)
 	r := gin.Default()
 
+	env1 := os.Getenv("ENV_1")
+	sec1 := os.Getenv("SEC_1")
+	log.Printf("ENV_1=%s SEC_1=%s", env1, sec1)
+	healthMessage := fmt.Sprintf("Alive and Well 18 | ENV_1=%s SEC_1=%s", env1, sec1)
+
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "Welcome, see: /api/v1/docs/index.html")
 	})
 
 	r.GET("/health", func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, "Alive and Well 18")
+		ctx.String(http.StatusOK, healthMessage)
 	})
 
 	v1 := r.Group("/api/v1")
