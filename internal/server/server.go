@@ -30,7 +30,7 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 	healthMessage := fmt.Sprintf("Alive and Well 19 | ENV_1=%s SEC_1=%s", env1, sec1)
 
 	r.GET("/", func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, "Welcome, see: /api/v1/docs/index.html")
+		ctx.String(http.StatusOK, fmt.Sprintf("Welcome, see: /api/v1/docs/index.html. %s", healthMessage))
 	})
 
 	r.GET("/health", func(ctx *gin.Context) {
