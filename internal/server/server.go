@@ -27,7 +27,7 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 	env1 := os.Getenv("ENV_1")
 	sec1 := os.Getenv("SEC_1")
 	log.Printf("ENV_1=%s SEC_1=%s", env1, sec1)
-	healthMessage := fmt.Sprintf("Alive and Well 18 | ENV_1=%s SEC_1=%s", env1, sec1)
+	healthMessage := fmt.Sprintf("Alive and Well 19 | ENV_1=%s SEC_1=%s", env1, sec1)
 
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "Welcome, see: /api/v1/docs/index.html")
