@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/samuelagm/moviex/internal/app"
-	_ "github.com/samuelagm/moviex/internal/database" // Initialize SQLite driver
+	_ "github.com/samuelagm/moviex/internal/database"
 )
 
 // @title Movie API
-// @version 0.0.3
+// @version 0.0.4
 // @description StarWars Movie Server.
 // @termsOfService http://swagger.io/terms/
 // @contact.name Samuel Agbonkpolo
