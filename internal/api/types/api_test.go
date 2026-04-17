@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	_ "modernc.org/sqlite"
 	"github.com/samuelagm/moviex/ent"
+	_ "github.com/samuelagm/moviex/internal/database"
 	"github.com/samuelagm/moviex/internal/loader"
 	"gotest.tools/assert"
 )
@@ -43,8 +43,8 @@ func initVars() {
 	{
 		v1.GET("/movies", api.Movies)
 		v1.GET("/characters/:episodeId", api.Characters)
-		v1.GET("/comment/:episodeId", api.Comments)
-		v1.POST("/comment/:episodeId", api.NewComment)
+		v1.GET("/comments/:episodeId", api.Comments)
+		v1.POST("/comments/:episodeId", api.NewComment)
 	}
 }
 
@@ -64,7 +64,7 @@ func TestApiHelper_Characters(t *testing.T) {
 }
 
 func TestApiHelper_Comments(t *testing.T) {
-	req, _ := http.NewRequest("GET", "/api/v1/comments/4", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/comments/999", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
@@ -79,5 +79,5 @@ func TestApiHelper_NewComments(t *testing.T) {
 		bytes.NewBuffer(jsonData))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusCreated, w.Code)
 }

@@ -182,6 +182,9 @@ func (h *ApiHelper) Characters(gctx *gin.Context) {
 // @x-resilis-cfg {"type":"public"}
 func (h *ApiHelper) Comments(gctx *gin.Context) {
 	m := getConnectedMovie(gctx, h)
+	if m == nil {
+		return
+	}
 	if comments, err := m.QueryComments().
 		Order(ent.Desc(comment.FieldCreated)).
 		Limit(5).
