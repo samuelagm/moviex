@@ -57,8 +57,14 @@ func NewApiHelper(ctx context.Context, dbClient *ent.Client) *ApiHelper {
 // @Failure      	500  {object}  	ErrorResponse
 // @Router 			/movies [get]
 func (h *ApiHelper) Movies(gctx *gin.Context) {
+	limit := 5
+	if l, ok := gctx.GetQuery("limit"); ok {
+		if n, err := strconv.Atoi(l); err == nil && n > 0 && n <= 50 {
+			limit = n
+		}
+	}
 	if movies, err := h.EntClient.Movie.Query().
-		Order((ent.Desc(movie.FieldCreated))).Limit(5).All(h.Context); err == nil {
+		Order((ent.Desc(movie.FieldCreated))).Limit(limit).All(h.Context); err == nil {
 		result := []FilmResponse{}
 		for _, m := range movies {
 			result = append(result, FilmResponse{
