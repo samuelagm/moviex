@@ -273,9 +273,15 @@ func (h *ApiHelper) Stats(gctx *gin.Context) {
 		gctx.JSON(http.StatusInternalServerError, ErrorResponse{Message: "something went wrong"})
 		return
 	}
+	characterCount, err := h.EntClient.Character.Query().Count(h.Context)
+	if err != nil {
+		gctx.JSON(http.StatusInternalServerError, ErrorResponse{Message: "something went wrong"})
+		return
+	}
 	gctx.JSON(http.StatusOK, StatsResponse{
-		Movies:   movieCount,
-		Comments: commentCount,
+		Movies:     movieCount,
+		Comments:   commentCount,
+		Characters: characterCount,
 	})
 }
 

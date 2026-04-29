@@ -42,8 +42,9 @@ type Film struct {
 }
 
 type StatsResponse struct {
-	Movies   int `json:"movies"`
-	Comments int `json:"comments"`
+	Movies     int `json:"movies"`
+	Comments   int `json:"comments"`
+	Characters int `json:"characters"`
 }
 
 type Comment struct {
