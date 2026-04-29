@@ -247,6 +247,34 @@ func (h *ApiHelper) NewComment(gctx *gin.Context) {
 
 // @BasePath /api/v1
 
+// Stats godoc
+// @Summary      Get aggregate stats
+// @Schemes
+// @Description  Returns counts of movies and comments in the database
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} StatsResponse
+// @Failure      500 {object} ErrorResponse
+// @Router       /stats [get]
+func (h *ApiHelper) Stats(gctx *gin.Context) {
+	movieCount, err := h.EntClient.Movie.Query().Count(h.Context)
+	if err != nil {
+		gctx.JSON(http.StatusInternalServerError, ErrorResponse{Message: "something went wrong"})
+		return
+	}
+	commentCount, err := h.EntClient.Comment.Query().Count(h.Context)
+	if err != nil {
+		gctx.JSON(http.StatusInternalServerError, ErrorResponse{Message: "something went wrong"})
+		return
+	}
+	gctx.JSON(http.StatusOK, StatsResponse{
+		Movies:   movieCount,
+		Comments: commentCount,
+	})
+}
+
+// @BasePath /api/v1
+
 // @Summary      Creates a new movie
 // @Schemes
 // @Description  Adds a new movie to the database

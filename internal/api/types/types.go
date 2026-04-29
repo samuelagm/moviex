@@ -41,6 +41,11 @@ type Film struct {
 	URL          string   `json:"url"`
 }
 
+type StatsResponse struct {
+	Movies   int `json:"movies"`
+	Comments int `json:"comments"`
+}
+
 type Comment struct {
 	Name string `json:"name"`
 	Text string `json:"text"`

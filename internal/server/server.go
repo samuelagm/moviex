@@ -11,6 +11,7 @@ import (
 	"github.com/samuelagm/moviex/docs"
 	"github.com/samuelagm/moviex/ent"
 	apitypes "github.com/samuelagm/moviex/internal/api/types"
+	"github.com/samuelagm/moviex/internal/auth"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -22,6 +23,7 @@ func init() {
 func Listen(ctx context.Context, dbClient *ent.Client) {
 
 	api := apitypes.NewApiHelper(ctx, dbClient)
+	authStore := auth.NewStore()
 	r := gin.Default()
 
 	env1 := os.Getenv("ENV_1")
@@ -39,11 +41,20 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 
 	v1 := r.Group("/api/v1")
 	{
+		v1.POST("/auth/register", authStore.Register)
+		v1.POST("/auth/login", authStore.Login)
+
 		v1.GET("/movies", api.Movies)
 		v1.GET("/characters/:episodeId", api.Characters)
 		v1.GET("/comments/:episodeId", api.Comments)
-		v1.POST("/comments/:episodeId", api.NewComment)
-		v1.POST("/movies", api.NewMovie)
+		v1.GET("/stats", api.Stats)
+
+		protected := v1.Group("/", authStore.Middleware())
+		{
+			protected.POST("/comments/:episodeId", api.NewComment)
+			protected.POST("/movies", api.NewMovie)
+		}
+
 		v1.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	}
 
