@@ -340,7 +340,34 @@ func (h *ApiHelper) NewMovie(gctx *gin.Context) {
 
 // @BasePath /api/v1
 
-// Movie godoc
+// DeleteComment godoc
+// @Summary      Delete a comment
+// @Schemes
+// @Description  Deletes a comment by ID from a movie episode
+// @Param        episodeId   path  int  true  "Episode ID"
+// @Param        commentId   path  int  true  "Comment ID"
+// @Accept       json
+// @Produce      json
+// @Success      204
+// @Failure      400  {object}  ErrorResponse
+// @Failure      404  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /comments/{episodeId}/{commentId} [delete]
+// @Security     BearerAuth
+func (h *ApiHelper) DeleteComment(gctx *gin.Context) {
+	commentID, err := strconv.Atoi(gctx.Param("commentId"))
+	if err != nil {
+		gctx.JSON(http.StatusBadRequest, ErrorResponse{Message: "invalid comment id"})
+		return
+	}
+	if err := h.EntClient.Comment.DeleteOneID(commentID).Exec(h.Context); err != nil {
+		gctx.JSON(http.StatusNotFound, ErrorResponse{Message: "comment not found"})
+		return
+	}
+	gctx.Status(http.StatusNoContent)
+}
+
+// @BasePath /api/v1
 // @Summary      Get a single movie by episode ID
 // @Schemes
 // @Description  Returns a single star wars movie by its episode ID

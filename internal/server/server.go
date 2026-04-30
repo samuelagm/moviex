@@ -53,6 +53,7 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 		protected := v1.Group("/", authStore.Middleware())
 		{
 			protected.POST("/comments/:episodeId", api.NewComment)
+			protected.DELETE("/comments/:episodeId/:commentId", api.DeleteComment)
 			protected.POST("/movies", api.NewMovie)
 		}
 
