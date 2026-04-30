@@ -118,10 +118,12 @@ func (h *ApiHelper) Characters(gctx *gin.Context) {
 	}
 
 	if field, filterOk := gctx.GetQuery("filter"); filterOk {
-		if field, Ok := filterField[field]; Ok {
-			filterOp = character.GenderEQ(field)
+		v := strings.ToLower(strings.TrimSpace(field))
+		if mapped, Ok := filterField[v]; Ok {
+			filterOp = character.GenderEQ(mapped)
 		} else {
-			filterOp = character.GenderEQ("*$@!0p") //produce an empty result
+			gctx.JSON(http.StatusBadRequest, ErrorResponse{Message: "invalid filter value"})
+			return
 		}
 	}
 
