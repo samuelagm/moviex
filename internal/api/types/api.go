@@ -410,3 +410,68 @@ func (h *ApiHelper) Movie(gctx *gin.Context) {
 		URL:          m.URL,
 	})
 }
+
+// @BasePath /api/v1
+
+// UpdateMovie godoc
+// @Summary      Update a movie
+// @Schemes
+// @Description  Updates fields of an existing movie by episode ID
+// @Param        episodeId  path  int   true  "Episode ID"
+// @Param        movie      body  Film  true  "Movie fields to update"
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  FilmResponse
+// @Failure      400  {object}  ErrorResponse
+// @Failure      404  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /movies/{episodeId} [put]
+// @Security     BearerAuth
+func (h *ApiHelper) UpdateMovie(gctx *gin.Context) {
+	m := getConnectedMovie(gctx, h)
+	if m == nil {
+		return
+	}
+
+	var body Film
+	if err := gctx.ShouldBindJSON(&body); err != nil {
+		gctx.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	upd := h.EntClient.Movie.UpdateOneID(m.ID)
+	if body.Title != "" {
+		upd = upd.SetTitle(body.Title)
+	}
+	if body.Director != "" {
+		upd = upd.SetDirector(body.Director)
+	}
+	if body.Producer != "" {
+		upd = upd.SetProducer(body.Producer)
+	}
+	if body.EpisodeID != 0 {
+		upd = upd.SetEpisodeID(body.EpisodeID)
+	}
+	if body.OpeningCrawl != "" {
+		upd = upd.SetOpeningCrawl(body.OpeningCrawl)
+	}
+
+	updated, err := upd.SetEdited(time.Now()).Save(h.Context)
+	if err != nil {
+		log.Println(err)
+		gctx.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		return
+	}
+	gctx.JSON(http.StatusOK, FilmResponse{
+		Title:        updated.Title,
+		EpisodeID:    updated.EpisodeID,
+		OpeningCrawl: updated.OpeningCrawl,
+		Director:     updated.Director,
+		Producer:     updated.Producer,
+		ReleaseDate:  commontypes.ReleaseDate(updated.ReleaseDate),
+		Characters:   updated.Characters,
+		Created:      updated.Created,
+		Edited:       updated.Edited,
+		URL:          updated.URL,
+	})
+}

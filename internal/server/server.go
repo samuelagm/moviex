@@ -55,6 +55,7 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 			protected.POST("/comments/:episodeId", api.NewComment)
 			protected.DELETE("/comments/:episodeId/:commentId", api.DeleteComment)
 			protected.POST("/movies", api.NewMovie)
+			protected.PUT("/movies/:episodeId", api.UpdateMovie)
 		}
 
 		v1.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
