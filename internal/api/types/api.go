@@ -337,3 +337,35 @@ func (h *ApiHelper) NewMovie(gctx *gin.Context) {
 
 	gctx.JSON(http.StatusCreated, movie)
 }
+
+// @BasePath /api/v1
+
+// Movie godoc
+// @Summary      Get a single movie by episode ID
+// @Schemes
+// @Description  Returns a single star wars movie by its episode ID
+// @Param        episodeId  path  int  true  "Episode ID"
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  FilmResponse
+// @Failure      400  {object}  ErrorResponse
+// @Failure      404  {object}  ErrorResponse
+// @Router       /movies/{episodeId} [get]
+func (h *ApiHelper) Movie(gctx *gin.Context) {
+	m := getConnectedMovie(gctx, h)
+	if m == nil {
+		return
+	}
+	gctx.JSON(http.StatusOK, FilmResponse{
+		Title:        m.Title,
+		EpisodeID:    m.EpisodeID,
+		OpeningCrawl: m.OpeningCrawl,
+		Director:     m.Director,
+		Producer:     m.Producer,
+		ReleaseDate:  commontypes.ReleaseDate(m.ReleaseDate),
+		Characters:   m.Characters,
+		Created:      m.Created,
+		Edited:       m.Edited,
+		URL:          m.URL,
+	})
+}

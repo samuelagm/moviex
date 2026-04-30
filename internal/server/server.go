@@ -45,6 +45,7 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 		v1.POST("/auth/login", authStore.Login)
 
 		v1.GET("/movies", api.Movies)
+		v1.GET("/movies/:episodeId", api.Movie)
 		v1.GET("/characters/:episodeId", api.Characters)
 		v1.GET("/comments/:episodeId", api.Comments)
 		v1.GET("/stats", api.Stats)
