@@ -177,8 +177,9 @@ func (h *ApiHelper) Characters(gctx *gin.Context) {
 // Comments 		godoc
 // @Summary 		list all comments from a movie
 // @Schemes
-// @Description 	Returns a list of comments from a movie by episode Id
+// @Description 	Returns a paginated list of comments from a movie by episode Id
 // @Param        	episodeId path int  true  "Episode ID"
+// @Param           page      query int  false "Page number (1-based)"
 // @Accept       	json
 // @Produce 		json
 // @Success 		200 {array}   CommentResponse
@@ -191,9 +192,20 @@ func (h *ApiHelper) Comments(gctx *gin.Context) {
 	if m == nil {
 		return
 	}
+
+	const pageSize = 5
+	page := 1
+	if p, ok := gctx.GetQuery("page"); ok {
+		if n, err := strconv.Atoi(p); err == nil && n > 0 {
+			page = n
+		}
+	}
+	offset := page * pageSize
+
 	if comments, err := m.QueryComments().
 		Order(ent.Desc(comment.FieldCreated)).
-		Limit(5).
+		Limit(pageSize).
+		Offset(offset).
 		All(h.Context); err == nil {
 		result := []CommentResponse{}
 		for _, m := range comments {
