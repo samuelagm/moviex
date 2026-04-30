@@ -54,14 +54,20 @@ func NewApiHelper(ctx context.Context, dbClient *ent.Client) *ApiHelper {
 // @Accept       	json
 // @Produce 		json
 // @Success 		200 {array} 	FilmResponse
+// @Failure      	400  {object}  	ErrorResponse
 // @Failure      	500  {object}  	ErrorResponse
 // @Router 			/movies [get]
 func (h *ApiHelper) Movies(gctx *gin.Context) {
 	limit := 5
 	if l, ok := gctx.GetQuery("limit"); ok {
-		if n, err := strconv.Atoi(l); err == nil && n > 0 && n <= 50 {
-			limit = n
+		n, err := strconv.Atoi(l)
+		if err != nil || n <= 0 || n > 50 {
+			gctx.JSON(http.StatusBadRequest, ErrorResponse{
+				Message: "limit must be a positive integer between 1 and 50",
+			})
+			return
 		}
+		limit = n
 	}
 	if movies, err := h.EntClient.Movie.Query().
 		Order((ent.Desc(movie.FieldCreated))).Limit(limit).All(h.Context); err == nil {
@@ -101,10 +107,14 @@ func (h *ApiHelper) Movies(gctx *gin.Context) {
 // @Accept       	json
 // @Produce 		json
 // @Success 		200  {array} 	CharacterResponse
+// @Failure      	400  {object}  	ErrorResponse
 // @Failure      	500  {object}  	ErrorResponse
 // @Router 			/characters/{episodeId} [get]
 func (h *ApiHelper) Characters(gctx *gin.Context) {
 	m := getConnectedMovie(gctx, h)
+	if m == nil {
+		return
+	}
 	sortOp := ent.Asc(character.FieldName)
 	filterOp := predicate.Character(func(s *sql.Selector) {})
 
@@ -187,21 +197,35 @@ func (h *ApiHelper) Characters(gctx *gin.Context) {
 // @Router 			/comments/{episodeId} [get]
 // @x-resilis-cfg {"type":"public"}
 func (h *ApiHelper) Comments(gctx *gin.Context) {
-	m := getConnectedMovie(gctx, h)
-	if m == nil {
+	id, err := strconv.Atoi(gctx.Param("episodeId"))
+	if err != nil {
+		gctx.JSON(http.StatusBadRequest, ErrorResponse{
+			Message: "episodeId must be an integer",
+		})
 		return
 	}
+
+	result := []CommentResponse{}
+
+	m, err := h.EntClient.Movie.Query().
+		Where(movie.EpisodeIDEQ(id)).
+		Unique(true).First(h.Context)
+	if err != nil {
+		// Movie not found — return empty comment list
+		gctx.JSON(http.StatusOK, result)
+		return
+	}
+
 	if comments, err := m.QueryComments().
 		Order(ent.Desc(comment.FieldCreated)).
 		Limit(5).
 		All(h.Context); err == nil {
-		result := []CommentResponse{}
-		for _, m := range comments {
+		for _, c := range comments {
 			result = append(result, CommentResponse{
-				Name:    m.Name,
-				Text:    m.Text,
-				IP:      m.IP,
-				Created: m.Created,
+				Name:    c.Name,
+				Text:    c.Text,
+				IP:      c.IP,
+				Created: c.Created,
 			})
 		}
 		gctx.JSON(http.StatusOK, result)
