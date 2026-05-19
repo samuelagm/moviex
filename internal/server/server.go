@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,6 +16,9 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+//go:embed ui
+var uiFS embed.FS
 
 func init() {
 	docs.SwaggerInfo.BasePath = "/api/v1"
@@ -31,8 +35,17 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 	log.Printf("ENV_1=%s SEC_1=%s", env1, sec1)
 	healthMessage := fmt.Sprintf("Alive and Well 35 | ENV_1=%s SEC_1=%s", env1, sec1)
 
-	r.GET("/", func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, fmt.Sprintf("Welcome, see: /api/v1/docs/index.html. %s", healthMessage))
+	r.GET("/", func(c *gin.Context) {
+		serveEmbedded(c, "ui/index.html")
+	})
+	r.GET("/movies/:id", func(c *gin.Context) {
+		serveEmbedded(c, "ui/movie.html")
+	})
+	r.GET("/login", func(c *gin.Context) {
+		serveEmbedded(c, "ui/login.html")
+	})
+	r.GET("/register", func(c *gin.Context) {
+		serveEmbedded(c, "ui/register.html")
 	})
 
 	r.GET("/health", func(ctx *gin.Context) {
@@ -62,4 +75,13 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+}
+
+func serveEmbedded(c *gin.Context, path string) {
+	data, err := uiFS.ReadFile(path)
+	if err != nil {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	c.Data(http.StatusOK, "text/html; charset=utf-8", data)
 }

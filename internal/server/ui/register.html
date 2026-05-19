@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register &mdash; MovieX</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul>
+        <li><a href="/"><strong>MovieX</strong></a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <article style="max-width: 420px; margin: 4rem auto;">
+      <header>
+        <h1>Register</h1>
+      </header>
+      <form id="register-form">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Choose a password" autocomplete="new-password" required>
+        <button type="submit">Create account</button>
+        <p id="error-message" hidden></p>
+      </form>
+      <footer>
+        <p>Already have an account? <a href="/login">Login</a></p>
+      </footer>
+    </article>
+  </main>
+
+  <script>
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errEl = document.getElementById('error-message');
+      errEl.hidden = true;
+
+      try {
+        const resp = await fetch('/api/v1/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.message || 'Registration failed');
+        localStorage.setItem('moviex_token', data.token);
+        location.href = '/';
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>

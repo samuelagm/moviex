@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MovieX</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul>
+        <li><a href="/"><strong>MovieX</strong></a></li>
+      </ul>
+      <ul id="nav-links">
+        <li><a href="/login">Login</a></li>
+        <li><a href="/register">Register</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <hgroup>
+      <h1>Movies</h1>
+      <p>A long time ago in a galaxy far, far away&hellip;</p>
+    </hgroup>
+    <div id="movies-list">
+      <p aria-busy="true">Loading movies&hellip;</p>
+    </div>
+    <p id="error-message" hidden></p>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('moviex_token');
+    if (token) {
+      document.getElementById('nav-links').innerHTML =
+        '<li><a href="#" id="logout-btn">Logout</a></li>';
+      document.getElementById('logout-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('moviex_token');
+        location.reload();
+      });
+    }
+
+    fetch('/api/v1/movies')
+      .then(r => {
+        if (!r.ok) throw new Error('Failed to load movies');
+        return r.json();
+      })
+      .then(movies => {
+        const list = document.getElementById('movies-list');
+        if (!movies || movies.length === 0) {
+          list.innerHTML = '<p>No movies found.</p>';
+          return;
+        }
+        list.innerHTML = movies.map(m => `
+          <article>
+            <header>
+              <a href="/movies/${m.episode_id}"><strong>${m.title}</strong></a>
+              &nbsp;<small>Episode ${m.episode_id}</small>
+            </header>
+            <p>Directed by ${m.director} &middot; Released ${m.release_date}</p>
+            <footer><a href="/movies/${m.episode_id}">View details &rarr;</a></footer>
+          </article>
+        `).join('');
+      })
+      .catch(err => {
+        document.getElementById('movies-list').innerHTML = '';
+        const errEl = document.getElementById('error-message');
+        errEl.textContent = err.message;
+        errEl.hidden = false;
+      });
+  </script>
+</body>
+</html>

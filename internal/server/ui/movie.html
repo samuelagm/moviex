@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Detail &mdash; MovieX</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul>
+        <li><a href="/"><strong>MovieX</strong></a></li>
+        <li><a href="/">&larr; All Movies</a></li>
+      </ul>
+      <ul id="nav-links">
+        <li><a href="/login">Login</a></li>
+        <li><a href="/register">Register</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="movie-detail">
+      <p aria-busy="true">Loading movie&hellip;</p>
+    </section>
+
+    <section id="characters-section" hidden>
+      <h2>Characters</h2>
+      <ul id="characters-list"></ul>
+    </section>
+
+    <section id="comments-section" hidden>
+      <h2>Comments</h2>
+      <div id="comments-list"></div>
+
+      <div id="comment-form-container" hidden>
+        <h3>Add a Comment</h3>
+        <form id="comment-form">
+          <label for="comment-name">Name</label>
+          <input id="comment-name" name="name" type="text" placeholder="Your name" required>
+          <label for="comment-text">Comment</label>
+          <textarea id="comment-text" name="text" placeholder="Write a comment&hellip;" rows="3" required></textarea>
+          <button type="submit">Add Comment</button>
+          <p id="comment-error" hidden></p>
+          <p id="comment-success" hidden></p>
+        </form>
+      </div>
+
+      <p id="comment-auth-note" hidden>
+        <a href="/login">Log in</a> to add a comment.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('moviex_token');
+    if (token) {
+      document.getElementById('nav-links').innerHTML =
+        '<li><a href="#" id="logout-btn">Logout</a></li>';
+      document.getElementById('logout-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('moviex_token');
+        location.href = '/';
+      });
+    }
+
+    const episodeId = window.location.pathname.split('/').filter(Boolean).pop();
+
+    function renderComments(comments) {
+      const list = document.getElementById('comments-list');
+      if (!comments || comments.length === 0) {
+        list.innerHTML = '<p>No comments yet.</p>';
+      } else {
+        list.innerHTML = comments.map(c => `
+          <article>
+            <header><strong>${c.name}</strong> <small>${new Date(c.created).toLocaleDateString()}</small></header>
+            <p>${c.text}</p>
+          </article>
+        `).join('');
+      }
+    }
+
+    Promise.all([
+      fetch(`/api/v1/movies/${episodeId}`).then(r => r.ok ? r.json() : Promise.reject('Movie not found')),
+      fetch(`/api/v1/characters/${episodeId}`).then(r => r.ok ? r.json() : { characters: [] }),
+      fetch(`/api/v1/comments/${episodeId}`).then(r => r.ok ? r.json() : []),
+    ]).then(([movie, charData, comments]) => {
+      const detailSection = document.getElementById('movie-detail');
+      detailSection.innerHTML = `
+        <hgroup>
+          <h1>${movie.title}</h1>
+          <p>Episode ${movie.episode_id} &middot; Directed by ${movie.director} &middot; Released ${movie.release_date}</p>
+        </hgroup>
+        <p>${movie.opening_crawl}</p>
+        <p><strong>Producer:</strong> ${movie.producer}</p>
+      `;
+
+      const characters = (charData && charData.characters) ? charData.characters : [];
+      if (characters.length > 0) {
+        const charsList = document.getElementById('characters-list');
+        charsList.innerHTML = characters.map(c => `<li>${c.name} (${c.gender})</li>`).join('');
+        document.getElementById('characters-section').hidden = false;
+      }
+
+      document.getElementById('comments-section').hidden = false;
+      renderComments(comments);
+
+      if (token) {
+        document.getElementById('comment-form-container').hidden = false;
+      } else {
+        document.getElementById('comment-auth-note').hidden = false;
+      }
+    }).catch(err => {
+      document.getElementById('movie-detail').innerHTML = `<p>Error loading movie: ${err}</p>`;
+    });
+
+    document.addEventListener('submit', async (e) => {
+      if (e.target.id !== 'comment-form') return;
+      e.preventDefault();
+
+      const name = document.getElementById('comment-name').value;
+      const text = document.getElementById('comment-text').value;
+      const errEl = document.getElementById('comment-error');
+      const successEl = document.getElementById('comment-success');
+      errEl.hidden = true;
+      successEl.hidden = true;
+
+      try {
+        const resp = await fetch(`/api/v1/comments/${episodeId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name, text }),
+        });
+        if (!resp.ok) {
+          const data = await resp.json();
+          throw new Error(data.message || 'Failed to add comment');
+        }
+        document.getElementById('comment-name').value = '';
+        document.getElementById('comment-text').value = '';
+        successEl.textContent = 'Comment added!';
+        successEl.hidden = false;
+        const updated = await fetch(`/api/v1/comments/${episodeId}`).then(r => r.json());
+        renderComments(updated);
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>
