@@ -38,6 +38,9 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 	r.GET("/", func(c *gin.Context) {
 		serveEmbedded(c, "ui/index.html")
 	})
+	r.GET("/movies/new", func(c *gin.Context) {
+		serveEmbedded(c, "ui/movies-new.html")
+	})
 	r.GET("/movies/:id", func(c *gin.Context) {
 		serveEmbedded(c, "ui/movie.html")
 	})
@@ -59,6 +62,7 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 
 		v1.GET("/movies", api.Movies)
 		v1.GET("/movies/:episodeId", api.Movie)
+		v1.GET("/characters", api.AllCharacters)
 		v1.GET("/characters/:episodeId", api.Characters)
 		v1.GET("/comments/:episodeId", api.Comments)
 		v1.GET("/stats", api.Stats)
@@ -69,6 +73,7 @@ func Listen(ctx context.Context, dbClient *ent.Client) {
 			protected.DELETE("/comments/:episodeId/:commentId", api.DeleteComment)
 			protected.POST("/movies", api.NewMovie)
 			protected.PUT("/movies/:episodeId", api.UpdateMovie)
+			protected.POST("/characters", api.NewCharacter)
 		}
 
 		v1.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))

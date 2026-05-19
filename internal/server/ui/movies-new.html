@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Movie – MovieX</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <style>
+    body { padding: 1rem; }
+    nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 1rem; }
+    .step-bar { display: flex; gap: 0; margin-bottom: 2rem; }
+    .step { flex: 1; padding: 0.5rem 1rem; background: var(--pico-secondary-background); color: var(--pico-secondary-color); text-align: center; font-size: 0.85rem; border: 1px solid var(--pico-secondary-border-color); cursor: default; }
+    .step:first-child { border-radius: var(--pico-border-radius) 0 0 var(--pico-border-radius); }
+    .step:last-child  { border-radius: 0 var(--pico-border-radius) var(--pico-border-radius) 0; }
+    .step.active { background: var(--pico-primary-background); color: var(--pico-primary-inverse); border-color: var(--pico-primary-border); }
+    .step.done { background: var(--pico-form-element-valid-border-color); color: #fff; border-color: var(--pico-form-element-valid-border-color); }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* character search results */
+    #char-results { max-height: 220px; overflow-y: auto; border: 1px solid var(--pico-form-element-border-color); border-radius: var(--pico-border-radius); margin-top: 0.25rem; background: var(--pico-card-background-color); }
+    #char-results li { padding: 0.5rem 1rem; cursor: pointer; list-style: none; }
+    #char-results li:hover { background: var(--pico-secondary-background); }
+    #char-results.hidden { display: none; }
+
+    /* chips */
+    .chip-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; min-height: 2rem; }
+    .chip { display: flex; align-items: center; gap: 0.4rem; background: var(--pico-primary-background); color: var(--pico-primary-inverse); padding: 0.25rem 0.75rem; border-radius: 2rem; font-size: 0.85rem; }
+    .chip button { background: none; border: none; color: inherit; cursor: pointer; padding: 0; font-size: 1rem; line-height: 1; }
+
+    /* inline new-character form */
+    #new-char-section { border: 1px solid var(--pico-form-element-border-color); border-radius: var(--pico-border-radius); padding: 1rem; margin-top: 1rem; display: none; }
+    #new-char-section.open { display: block; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .error-msg { color: var(--pico-del-color, #c0392b); margin-top: 0.5rem; }
+    .success-msg { color: var(--pico-ins-color, #27ae60); margin-top: 0.5rem; }
+
+    .nav-step-btns { display: flex; gap: 1rem; margin-top: 2rem; }
+    #review-list { padding: 0; list-style: none; }
+    #review-list li { padding: 0.25rem 0; border-bottom: 1px solid var(--pico-table-border-color); }
+    #review-list li:last-child { border-bottom: none; }
+    #char-count-badge { display: inline-block; background: var(--pico-primary-background); color: var(--pico-primary-inverse); border-radius: 2rem; padding: 0.1rem 0.6rem; font-size: 0.8rem; margin-left: 0.4rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><strong><a href="/">MovieX</a></strong></li>
+    </ul>
+    <ul id="nav-auth">
+      <li><a href="/login">Login</a></li>
+      <li><a href="/register">Register</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h1>Add New Movie</h1>
+
+    <div class="step-bar" role="tablist">
+      <div class="step active" id="step-tab-1" role="tab">Step 1 — Movie Details</div>
+      <div class="step" id="step-tab-2" role="tab">Step 2 — Characters <span id="char-count-badge">0</span></div>
+      <div class="step" id="step-tab-3" role="tab">Step 3 — Review &amp; Submit</div>
+    </div>
+
+    <!-- ============================================================ STEP 1 -->
+    <section class="panel active" id="panel-1">
+      <article>
+        <h2>Movie Details</h2>
+        <div class="grid-2">
+          <label for="title">Title <input type="text" id="title" name="title" placeholder="A New Hope" required /></label>
+          <label for="episode_id">Episode ID <input type="number" id="episode_id" name="episode_id" placeholder="4" min="1" required /></label>
+        </div>
+        <div class="grid-2">
+          <label for="director">Director <input type="text" id="director" name="director" placeholder="George Lucas" required /></label>
+          <label for="producer">Producer <input type="text" id="producer" name="producer" placeholder="Gary Kurtz" required /></label>
+        </div>
+        <label for="release_date">Release Date <input type="date" id="release_date" name="release_date" required /></label>
+        <label for="url">URL <input type="url" id="url" name="url" placeholder="https://swapi.dev/api/films/1/" /></label>
+        <label for="opening_crawl">Opening Crawl <textarea id="opening_crawl" name="opening_crawl" rows="5" placeholder="It is a period of civil war..."></textarea></label>
+        <div id="step1-error" class="error-msg" aria-live="polite"></div>
+        <div class="nav-step-btns">
+          <button id="btn-to-step2">Next: Add Characters →</button>
+        </div>
+      </article>
+    </section>
+
+    <!-- ============================================================ STEP 2 -->
+    <section class="panel" id="panel-2">
+      <article>
+        <h2>Characters</h2>
+        <p>Search for existing characters or create new ones inline. Added characters will be linked to the movie.</p>
+
+        <label for="char-search">Search existing characters</label>
+        <input type="text" id="char-search" name="char-search" placeholder="Type a name…" autocomplete="off" aria-controls="char-results" aria-autocomplete="list" />
+        <ul id="char-results" class="hidden" role="listbox"></ul>
+        <div id="search-status" aria-live="polite" style="font-size:0.8rem; color: var(--pico-muted-color);"></div>
+
+        <hr />
+
+        <button type="button" id="toggle-new-char" class="secondary outline">+ Add new character</button>
+
+        <div id="new-char-section" role="region" aria-label="New character form">
+          <h3>New Character</h3>
+          <label for="nc-name">Name <input type="text" id="nc-name" name="nc-name" placeholder="Luke Skywalker" /></label>
+          <div class="grid-2">
+            <label for="nc-gender">Gender
+              <select id="nc-gender" name="nc-gender">
+                <option value="">— select —</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="n/a">N/A</option>
+              </select>
+            </label>
+            <label for="nc-birth_year">Birth Year <input type="text" id="nc-birth_year" name="nc-birth_year" placeholder="19BBY" /></label>
+          </div>
+          <div class="grid-2">
+            <label for="nc-height">Height (cm) <input type="text" id="nc-height" name="nc-height" placeholder="172" /></label>
+            <label for="nc-mass">Mass (kg) <input type="text" id="nc-mass" name="nc-mass" placeholder="77" /></label>
+          </div>
+          <div class="grid-2">
+            <label for="nc-hair_color">Hair Color <input type="text" id="nc-hair_color" name="nc-hair_color" placeholder="blond" /></label>
+            <label for="nc-skin_color">Skin Color <input type="text" id="nc-skin_color" name="nc-skin_color" placeholder="fair" /></label>
+          </div>
+          <label for="nc-eye_color">Eye Color <input type="text" id="nc-eye_color" name="nc-eye_color" placeholder="blue" /></label>
+          <div id="new-char-error" class="error-msg" aria-live="polite"></div>
+          <div class="nav-step-btns">
+            <button id="btn-add-char" type="button">Add Character</button>
+            <button id="btn-cancel-char" type="button" class="secondary outline">Cancel</button>
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+          <strong>Selected Characters (<span id="selected-count">0</span>)</strong>
+          <div class="chip-list" id="char-chips" aria-label="Selected characters"></div>
+          <p id="no-chars-msg" style="color:var(--pico-muted-color); font-size:0.9rem;">No characters added yet. That's fine — you can add them later.</p>
+        </div>
+
+        <div class="nav-step-btns">
+          <button type="button" id="btn-back-step1" class="secondary outline">← Back</button>
+          <button type="button" id="btn-to-step3">Next: Review →</button>
+        </div>
+      </article>
+    </section>
+
+    <!-- ============================================================ STEP 3 -->
+    <section class="panel" id="panel-3">
+      <article>
+        <h2>Review &amp; Submit</h2>
+
+        <table>
+          <tbody>
+            <tr><th>Title</th><td id="rv-title"></td></tr>
+            <tr><th>Episode ID</th><td id="rv-episode_id"></td></tr>
+            <tr><th>Director</th><td id="rv-director"></td></tr>
+            <tr><th>Producer</th><td id="rv-producer"></td></tr>
+            <tr><th>Release Date</th><td id="rv-release_date"></td></tr>
+            <tr><th>URL</th><td id="rv-url"></td></tr>
+            <tr><th>Opening Crawl</th><td id="rv-opening_crawl" style="white-space:pre-wrap; font-size:0.85rem;"></td></tr>
+          </tbody>
+        </table>
+
+        <h3>Characters (<span id="rv-char-count">0</span>)</h3>
+        <ul id="review-list"></ul>
+
+        <div id="submit-error" class="error-msg" aria-live="polite"></div>
+        <div id="submit-success" class="success-msg" aria-live="polite"></div>
+
+        <div class="nav-step-btns">
+          <button type="button" id="btn-back-step2" class="secondary outline">← Back</button>
+          <button type="button" id="btn-submit">Create Movie</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    // ── auth guard ──────────────────────────────────────────────────────────
+    const token = localStorage.getItem('moviex_token');
+    if (!token) {
+      window.location.href = '/login';
+    }
+
+    // update nav
+    const navAuth = document.getElementById('nav-auth');
+    if (token) {
+      navAuth.innerHTML = `
+        <li><a href="/movies/new">Add Movie</a></li>
+        <li><a href="#" id="logout-link">Logout</a></li>`;
+      document.getElementById('logout-link').addEventListener('click', e => {
+        e.preventDefault();
+        localStorage.removeItem('moviex_token');
+        window.location.href = '/';
+      });
+    }
+
+    // ── state ───────────────────────────────────────────────────────────────
+    const selectedChars = new Map(); // id (number|string) → {id, name}
+    let charIdCounter = -1; // negative = locally-created placeholder
+
+    // ── step navigation ─────────────────────────────────────────────────────
+    function showStep(n) {
+      document.querySelectorAll('.panel').forEach((p, i) => {
+        p.classList.toggle('active', i + 1 === n);
+      });
+      document.querySelectorAll('.step').forEach((s, i) => {
+        s.classList.remove('active', 'done');
+        if (i + 1 < n) s.classList.add('done');
+        if (i + 1 === n) s.classList.add('active');
+      });
+    }
+
+    document.getElementById('btn-to-step2').addEventListener('click', () => {
+      if (!validateStep1()) return;
+      showStep(2);
+    });
+    document.getElementById('btn-back-step1').addEventListener('click', () => showStep(1));
+    document.getElementById('btn-to-step3').addEventListener('click', () => {
+      populateReview();
+      showStep(3);
+    });
+    document.getElementById('btn-back-step2').addEventListener('click', () => showStep(2));
+
+    // ── step 1 validation ───────────────────────────────────────────────────
+    function validateStep1() {
+      const errEl = document.getElementById('step1-error');
+      errEl.textContent = '';
+      const title = document.getElementById('title').value.trim();
+      const epId  = document.getElementById('episode_id').value.trim();
+      const dir   = document.getElementById('director').value.trim();
+      const prod  = document.getElementById('producer').value.trim();
+      const rd    = document.getElementById('release_date').value.trim();
+      const missing = [];
+      if (!title) missing.push('Title');
+      if (!epId)  missing.push('Episode ID');
+      if (!dir)   missing.push('Director');
+      if (!prod)  missing.push('Producer');
+      if (!rd)    missing.push('Release Date');
+      if (missing.length) {
+        errEl.textContent = 'Required: ' + missing.join(', ');
+        return false;
+      }
+      return true;
+    }
+
+    // ── character search ────────────────────────────────────────────────────
+    const charSearch   = document.getElementById('char-search');
+    const charResults  = document.getElementById('char-results');
+    const searchStatus = document.getElementById('search-status');
+    let searchTimer    = null;
+
+    charSearch.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      const q = charSearch.value.trim();
+      if (!q) {
+        charResults.innerHTML = '';
+        charResults.classList.add('hidden');
+        searchStatus.textContent = '';
+        return;
+      }
+      searchStatus.textContent = 'Searching…';
+      searchTimer = setTimeout(() => fetchCharacters(q), 300);
+    });
+
+    charSearch.addEventListener('blur', () => {
+      setTimeout(() => {
+        charResults.classList.add('hidden');
+      }, 200);
+    });
+
+    async function fetchCharacters(q) {
+      try {
+        const res = await fetch(`/api/v1/characters?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        renderSearchResults(data);
+        searchStatus.textContent = data.length === 0 ? 'No results.' : `${data.length} found`;
+      } catch {
+        searchStatus.textContent = 'Search failed.';
+      }
+    }
+
+    function renderSearchResults(chars) {
+      charResults.innerHTML = '';
+      if (!chars || chars.length === 0) {
+        charResults.classList.add('hidden');
+        return;
+      }
+      chars.forEach(c => {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'option');
+        li.textContent = `${c.name}${c.gender ? ' (' + c.gender + ')' : ''}`;
+        li.addEventListener('click', () => {
+          addCharToSelection(c.id, c.name);
+          charSearch.value = '';
+          charResults.classList.add('hidden');
+          searchStatus.textContent = '';
+        });
+        charResults.appendChild(li);
+      });
+      charResults.classList.remove('hidden');
+    }
+
+    // ── character chip management ───────────────────────────────────────────
+    function addCharToSelection(id, name) {
+      const key = String(id);
+      if (selectedChars.has(key)) return;
+      selectedChars.set(key, { id, name });
+      renderChips();
+    }
+
+    function removeChar(id) {
+      selectedChars.delete(String(id));
+      renderChips();
+    }
+
+    function renderChips() {
+      const container = document.getElementById('char-chips');
+      const countEl   = document.getElementById('selected-count');
+      const badgeEl   = document.getElementById('char-count-badge');
+      const noMsg     = document.getElementById('no-chars-msg');
+
+      container.innerHTML = '';
+      selectedChars.forEach(({ id, name }) => {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.setAttribute('data-char-id', id);
+        const label = document.createElement('span');
+        label.textContent = name;
+        const btn = document.createElement('button');
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', `Remove ${name}`);
+        btn.textContent = '×';
+        btn.addEventListener('click', () => removeChar(id));
+        chip.appendChild(label);
+        chip.appendChild(btn);
+        container.appendChild(chip);
+      });
+
+      const count = selectedChars.size;
+      countEl.textContent = count;
+      badgeEl.textContent = count;
+      noMsg.style.display = count > 0 ? 'none' : '';
+    }
+
+    // ── inline new character form ───────────────────────────────────────────
+    const newCharSection = document.getElementById('new-char-section');
+    const toggleBtn      = document.getElementById('toggle-new-char');
+    const cancelBtn      = document.getElementById('btn-cancel-char');
+    const addCharBtn     = document.getElementById('btn-add-char');
+    const newCharError   = document.getElementById('new-char-error');
+
+    toggleBtn.addEventListener('click', () => {
+      newCharSection.classList.toggle('open');
+      toggleBtn.textContent = newCharSection.classList.contains('open')
+        ? '− Cancel new character'
+        : '+ Add new character';
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      clearNewCharForm();
+      newCharSection.classList.remove('open');
+      toggleBtn.textContent = '+ Add new character';
+    });
+
+    addCharBtn.addEventListener('click', async () => {
+      newCharError.textContent = '';
+      const name = document.getElementById('nc-name').value.trim();
+      if (!name) {
+        newCharError.textContent = 'Name is required.';
+        return;
+      }
+
+      const body = {
+        name,
+        gender:     document.getElementById('nc-gender').value,
+        birth_year: document.getElementById('nc-birth_year').value.trim(),
+        height:     document.getElementById('nc-height').value.trim(),
+        mass:       document.getElementById('nc-mass').value.trim(),
+        hair_color: document.getElementById('nc-hair_color').value.trim(),
+        skin_color: document.getElementById('nc-skin_color').value.trim(),
+        eye_color:  document.getElementById('nc-eye_color').value.trim(),
+      };
+
+      addCharBtn.setAttribute('aria-busy', 'true');
+      addCharBtn.disabled = true;
+      try {
+        const res = await fetch('/api/v1/characters', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ message: res.statusText }));
+          newCharError.textContent = err.Message || err.message || 'Failed to create character.';
+          return;
+        }
+        const created = await res.json();
+        addCharToSelection(created.id, created.name);
+        clearNewCharForm();
+        newCharSection.classList.remove('open');
+        toggleBtn.textContent = '+ Add new character';
+      } catch (e) {
+        newCharError.textContent = 'Network error: ' + e.message;
+      } finally {
+        addCharBtn.removeAttribute('aria-busy');
+        addCharBtn.disabled = false;
+      }
+    });
+
+    function clearNewCharForm() {
+      ['nc-name','nc-birth_year','nc-height','nc-mass','nc-hair_color','nc-skin_color','nc-eye_color'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('nc-gender').selectedIndex = 0;
+      document.getElementById('new-char-error').textContent = '';
+    }
+
+    // ── review panel ────────────────────────────────────────────────────────
+    function populateReview() {
+      document.getElementById('rv-title').textContent        = document.getElementById('title').value;
+      document.getElementById('rv-episode_id').textContent   = document.getElementById('episode_id').value;
+      document.getElementById('rv-director').textContent     = document.getElementById('director').value;
+      document.getElementById('rv-producer').textContent     = document.getElementById('producer').value;
+      document.getElementById('rv-release_date').textContent = document.getElementById('release_date').value;
+      document.getElementById('rv-url').textContent          = document.getElementById('url').value;
+      document.getElementById('rv-opening_crawl').textContent = document.getElementById('opening_crawl').value;
+
+      const reviewList = document.getElementById('review-list');
+      const rvCount    = document.getElementById('rv-char-count');
+      reviewList.innerHTML = '';
+      selectedChars.forEach(({ name }) => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        reviewList.appendChild(li);
+      });
+      rvCount.textContent = selectedChars.size;
+    }
+
+    // ── submit ───────────────────────────────────────────────────────────────
+    document.getElementById('btn-submit').addEventListener('click', async () => {
+      const errEl  = document.getElementById('submit-error');
+      const okEl   = document.getElementById('submit-success');
+      const btn    = document.getElementById('btn-submit');
+      errEl.textContent = '';
+      okEl.textContent  = '';
+
+      const characterIDs = [];
+      selectedChars.forEach(({ id }) => {
+        if (typeof id === 'number' && id > 0) characterIDs.push(id);
+      });
+
+      const body = {
+        title:         document.getElementById('title').value.trim(),
+        episode_id:    parseInt(document.getElementById('episode_id').value, 10),
+        director:      document.getElementById('director').value.trim(),
+        producer:      document.getElementById('producer').value.trim(),
+        release_date:  document.getElementById('release_date').value,
+        url:           document.getElementById('url').value.trim(),
+        opening_crawl: document.getElementById('opening_crawl').value.trim(),
+        characters:    [],
+        character_ids: characterIDs,
+      };
+
+      btn.setAttribute('aria-busy', 'true');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/v1/movies', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(body),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ message: res.statusText }));
+          errEl.textContent = err.Message || err.message || `Error ${res.status}`;
+          return;
+        }
+
+        const created = await res.json();
+        okEl.textContent = `Movie "${created.title}" created! Redirecting…`;
+        btn.disabled = true;
+        setTimeout(() => {
+          window.location.href = `/movies/${created.episode_id}`;
+        }, 1200);
+      } catch (e) {
+        errEl.textContent = 'Network error: ' + e.message;
+      } finally {
+        btn.removeAttribute('aria-busy');
+        if (!document.getElementById('submit-success').textContent) {
+          btn.disabled = false;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

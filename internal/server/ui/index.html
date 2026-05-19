@@ -34,7 +34,7 @@
     const token = localStorage.getItem('moviex_token');
     if (token) {
       document.getElementById('nav-links').innerHTML =
-        '<li><a href="#" id="logout-btn">Logout</a></li>';
+        '<li><a href="/movies/new">Add Movie</a></li><li><a href="#" id="logout-btn">Logout</a></li>';
       document.getElementById('logout-btn').addEventListener('click', (e) => {
         e.preventDefault();
         localStorage.removeItem('moviex_token');

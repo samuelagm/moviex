@@ -267,6 +267,107 @@ func (h *ApiHelper) NewComment(gctx *gin.Context) {
 
 // @BasePath /api/v1
 
+// AllCharacters godoc
+// @Summary      List all characters
+// @Schemes
+// @Description  Returns all characters with optional name search via ?q=
+// @Param        q  query  string  false  "Search by name (case-insensitive)"
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}   Character
+// @Failure      500  {object}  ErrorResponse
+// @Router       /characters [get]
+func (h *ApiHelper) AllCharacters(gctx *gin.Context) {
+	q := gctx.Query("q")
+	query := h.EntClient.Character.Query().Order(ent.Asc(character.FieldName)).Limit(100)
+	if q != "" {
+		query = query.Where(character.NameContainsFold(q))
+	}
+	chars, err := query.All(h.Context)
+	if err != nil {
+		log.Println(err)
+		gctx.JSON(http.StatusInternalServerError, ErrorResponse{Message: "something went wrong"})
+		return
+	}
+	result := make([]Character, 0, len(chars))
+	for _, c := range chars {
+		result = append(result, Character{
+			ID:        c.ID,
+			Name:      c.Name,
+			Height:    c.Height,
+			Mass:      c.Mass,
+			HairColor: c.HairColor,
+			SkinColor: c.SkinColor,
+			EyeColor:  c.EyeColor,
+			BirthYear: c.BirthYear,
+			Gender:    c.Gender,
+			Films:     c.Films,
+			Created:   c.Created,
+			Edited:    c.Edited,
+			URL:       c.URL,
+		})
+	}
+	gctx.JSON(http.StatusOK, result)
+}
+
+// @BasePath /api/v1
+
+// NewCharacter godoc
+// @Summary      Create a new character
+// @Schemes
+// @Description  Creates a standalone character record
+// @Param        character  body  NewCharacterRequest  true  "Character data"
+// @Accept       json
+// @Produce      json
+// @Success      201  {object}  Character
+// @Failure      400  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /characters [post]
+// @Security     BearerAuth
+func (h *ApiHelper) NewCharacter(gctx *gin.Context) {
+	var req NewCharacterRequest
+	if err := gctx.ShouldBindJSON(&req); err != nil {
+		gctx.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		return
+	}
+	c, err := h.EntClient.Character.Create().
+		SetName(req.Name).
+		SetHeight(req.Height).
+		SetMass(req.Mass).
+		SetHairColor(req.HairColor).
+		SetSkinColor(req.SkinColor).
+		SetEyeColor(req.EyeColor).
+		SetBirthYear(req.BirthYear).
+		SetGender(req.Gender).
+		SetFilms([]string{}).
+		SetCreated(time.Now()).
+		SetEdited(time.Now()).
+		SetURL("").
+		Save(h.Context)
+	if err != nil {
+		log.Println(err)
+		gctx.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		return
+	}
+	gctx.JSON(http.StatusCreated, Character{
+		ID:        c.ID,
+		Name:      c.Name,
+		Height:    c.Height,
+		Mass:      c.Mass,
+		HairColor: c.HairColor,
+		SkinColor: c.SkinColor,
+		EyeColor:  c.EyeColor,
+		BirthYear: c.BirthYear,
+		Gender:    c.Gender,
+		Films:     c.Films,
+		Created:   c.Created,
+		Edited:    c.Edited,
+		URL:       c.URL,
+	})
+}
+
+// @BasePath /api/v1
+
 // Stats godoc
 // @Summary      Get aggregate stats
 // @Schemes
@@ -329,7 +430,7 @@ func (h *ApiHelper) NewMovie(gctx *gin.Context) {
 		return
 	}
 
-	if _, err := h.EntClient.Movie.
+	m, err := h.EntClient.Movie.
 		Create().
 		SetTitle(movie.Title).
 		SetDirector(movie.Director).
@@ -341,12 +442,19 @@ func (h *ApiHelper) NewMovie(gctx *gin.Context) {
 		SetReleaseDate(releaseDate).
 		SetCreated(time.Now()).
 		SetEdited(time.Now()).
-		Save(h.Context); err != nil {
+		Save(h.Context)
+	if err != nil {
 		log.Println(err)
 		gctx.JSON(http.StatusInternalServerError, ErrorResponse{
 			Message: err.Error(),
 		})
 		return
+	}
+
+	if len(movie.CharacterIDs) > 0 {
+		if _, err := m.Update().AddPersonIDs(movie.CharacterIDs...).Save(h.Context); err != nil {
+			log.Println(err)
+		}
 	}
 
 	gctx.JSON(http.StatusCreated, movie)
